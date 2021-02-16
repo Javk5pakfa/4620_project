@@ -50,8 +50,8 @@
 - Actual start date
 - Actual end date
 - Actual cost
--- Calculated by: `Cost_week + Cost_actual`
--- `Cost_week = (hours_worked * rate_of_pay) * num_emp`
+  - Calculated by: `Cost_week + Cost_actual`
+  - `Cost_week = (hours_worked * rate_of_pay) * num_emp`
 - One Employee_manager assigned
 
 ---
