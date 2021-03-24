@@ -4,12 +4,12 @@ use 4620Project;
 
 create table region (
 	Region_ID int not null auto_increment primary key,
-    Region_Name char(2) not null
+    Region_Name char(2) unique not null
 );
 
 create table skill (
 	Skill_ID int not null auto_increment primary key,
-    Skill_Descrpt varchar(255) not null,
+    Skill_Descrpt varchar(255) unique not null,
     Skill_Rate float not null
 );
 
