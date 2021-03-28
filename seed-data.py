@@ -5,23 +5,37 @@ from mysql.connector import Error
 
 try:
     connection = mysql.connector.connect(host='jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com',
-                                         database='ConstructCo',
-                                         user='Javk5pakfa',
-                                         password='GoJack123CU!')
+                                        user='Javk5pakfa',
+                                        password='GoJack123CU!')
     if connection.is_connected():
-        db_Info = connection.get_server_info()
-        print("Connected to MySQL Server version ", db_Info)
+        print("1st connection successful.")
         cursor = connection.cursor()
-        cursor.execute("select database();")
-        record = cursor.fetchone()
-        print("You're connected to database: ", record)
+        print("create database 4620project")
+        cursor.execute("create database 4620project")
 
 except Error as e:
     print("Error while connecting to MySQL", e)
 finally:
     if connection.is_connected():
-        # Assignment goes here.
-
         cursor.close()
         connection.close()
-        print("MySQL connection is closed")
+        print("1st connection is closed")
+
+# try:
+#     connection = mysql.connector.connect(host='jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com',
+                                        
+#                                         user='Javk5pakfa',
+#                                         password='GoJack123CU!')
+#     if connection.is_connected():
+#         print("1st connection successful.")
+#         cursor = connection.cursor()
+#         print("create database 4620project")
+#         cursor.execute("create database 4620project")
+
+# except Error as e:
+#     print("Error while connecting to MySQL", e)
+# finally:
+#     if connection.is_connected():
+#         cursor.close()
+#         connection.close()
+#         print("1st connection is closed")
