@@ -26,8 +26,8 @@ insert into skill(Skill_Descrpt, Skill_Rate)
         ('Data Entry II', 50.0), 
         ('Systems Analyst I', 30.0), 
         ('Systems Analyst II', 50.0), 
-        ('Database Designer I', 60.0), 
-        ('Database Designer II', 80.0), 
+        ('DB Designer I', 60.0), 
+        ('DB Designer II', 80.0), 
         ('Cobol I', 40.0), 
         ('Cobol II', 60.0), 
         ('C++ I', 50.0), 
@@ -39,7 +39,7 @@ insert into skill(Skill_Descrpt, Skill_Rate)
         ('ASP I', 70.0), 
         ('ASP II', 80.0), 
         ('Oracle DBA', 120.0), 
-        ('MS SQL Server DBA', 120.0), 
+        ('SQL Server DBA', 120.0), 
         ('Network Engineer I', 90.0), 
         ('Network Engineer II', 100.0), 
         ('Web Administrator', 80.0), 
@@ -99,6 +99,8 @@ insert into employee(Region_ID, Emp_Lname, Emp_Fname, EMP_Hiredate)
         'Bender', 'Larry', '1992/05/10'),
 		((select Region_ID from region where Region_Name = 'SW'), 
         'Batts', 'Melissa', '1992/05/10'),
+        ((select Region_ID from region where Region_Name = 'SW'), 
+        'Kattan', 'Chris', '1992/05/10'),
         ((select Region_ID from region where Region_Name = 'MN'), 
         'Williams', 'Josh', '1992/05/10'),
 		((select Region_ID from region where Region_Name = 'MN'), 
@@ -140,7 +142,7 @@ CREATE TABLE empskill (
         REFERENCES skill (Skill_ID)
 );
 
-insert ignore into empskill(Emp_ID, Skill_ID)
+insert into empskill(Emp_ID, Skill_ID)
 	values
 		((select Emp_ID from employee where Emp_Fname in ('Amy')), 
         (select Skill_ID from skill where Skill_Descrpt = 'Data Entry I')),
@@ -162,7 +164,7 @@ insert ignore into empskill(Emp_ID, Skill_ID)
         (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst I')),
         ((select Emp_ID from employee where Emp_Fname in ('Steve')), 
         (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst I')),
-        ((select Emp_ID from employee where Emp_Fname in ('Joseph''Erin')), 
+        ((select Emp_ID from employee where Emp_Fname in ('Joseph')), 
         (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II')),
         ((select Emp_ID from employee where Emp_Fname in ('Shane')), 
         (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II')),
@@ -202,7 +204,7 @@ insert ignore into empskill(Emp_ID, Skill_ID)
         (select Skill_ID from skill where Skill_Descrpt = 'C++ II')),
         ((select Emp_ID from employee where Emp_Fname in ('Steve')), 
         (select Skill_ID from skill where Skill_Descrpt = 'VB I')),
-        ((select Emp_ID from employee where Emp_Fname in ('Steve')), 
+        ((select Emp_ID from employee where Emp_Fname in ('Maria')), 
         (select Skill_ID from skill where Skill_Descrpt = 'VB I')),
         ((select Emp_ID from employee where Emp_Fname in ('Steve')), 
         (select Skill_ID from skill where Skill_Descrpt = 'VB II')),
@@ -311,6 +313,24 @@ CREATE TABLE task_skills (
         REFERENCES skill (Skill_ID)
 );
 
+insert into task(Proj_ID, Task_Info, Task_DateSt, Task_DateEnd)
+	values
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Initial Interview', '2014/03/01', '2014/03/06'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Database Design', '2014/03/11', '2014/03/15'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Design', '2014/03/11', '2014/04/12'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Database Implementation', '2014/03/18', '2014/03/22'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Coding & Testing', '2014/03/25', '2014/05/20'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Documentation', '2014/03/25', '2014/06/07'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Final Evaluation', '2014/06/10', '2014/06/14'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'On-Site System Online and Data Loading', '2014/06/17', '2014/06/21'),
+		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Sign-Off', '2014/07/01', '2014/07/01');
+
+insert into task_skills(Task_ID, Skill_ID, TS_Qty)
+	values
+		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1),
+		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 1),
+		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1);
+
 CREATE TABLE assign (
     Asn_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     Emp_ID INT NOT NULL,
@@ -342,23 +362,5 @@ CREATE TABLE worklog (
     FOREIGN KEY (Bill_ID)
         REFERENCES bill (Bill_ID)
 );
-
-insert into task(Proj_ID, Task_Info, Task_DateSt, Task_DateEnd)
-	values
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Initial Interview', '2014/03/01', '2014/03/06'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Database Design', '2014/03/11', '2014/03/15'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Design', '2014/03/11', '2014/04/12'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Database Implementation', '2014/03/18', '2014/03/22'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Coding & Testing', '2014/03/25', '2014/05/20'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'System Documentation', '2014/03/25', '2014/06/07'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Final Evaluation', '2014/06/10', '2014/06/14'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'On-Site System Online and Data Loading', '2014/06/17', '2014/06/21'),
-		((select Proj_ID from project where Proj_Descrpt = 'Sales Management System'), 'Sign-Off', '2014/07/01', '2014/07/01');
-
-insert into task_skills(Task_ID, Skill_ID, TS_Qty)
-	values
-		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1),
-		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 1),
-		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1);
 
 commit;
