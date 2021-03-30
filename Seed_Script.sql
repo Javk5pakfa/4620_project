@@ -360,6 +360,8 @@ CREATE TABLE assign (
         REFERENCES task_skills (TS_ID)
 );
 
+alter table assign auto_increment=101;
+
 insert into assign(Emp_ID, Asn_DateSt, Asn_DateEnd, TS_ID)
 	values
 		((select employee.EMP_ID from employee, region, skill, empskill where employee.Region_ID = region.Region_ID and region.Region_Name = 'NW' and employee.Emp_ID = empskill.Emp_ID and skill.Skill_ID = empskill.Skill_ID and skill.Skill_Descrpt = "Project Manager"), 
@@ -434,5 +436,40 @@ CREATE TABLE worklog (
     FOREIGN KEY (Bill_ID)
         REFERENCES bill (Bill_ID)
 );
+
+insert into bill(Bill_ID, Bill_Date, Proj_ID)
+	values
+		("201", "2014/03/15", "1"),
+        ("202", "2014/03/31", "1");
+        
+insert into worklog(Asn_ID, WL_Date, WL_Hours, Bill_ID)
+	values
+		("102", "2014/03/01", "4", "201"),
+		("101", "2014/03/01", "4", "201"),
+		("103", "2014/03/01", "4", "201"),
+		("102", "2014/03/08", "24", "201"),
+		("101", "2014/03/08", "24", "201"),
+		("103", "2014/03/08", "24", "201"),
+		("105", "2014/03/15", "40", "201"),
+		("106", "2014/03/15", "40", "201"),
+		("108", "2014/03/15", "6", "201"),
+		("104", "2014/03/15", "32", "201"),
+		("107", "2014/03/15", "35", "201"),
+		("105", "2014/03/22", "40", "202"),
+		("106", "2014/03/22", "40", "202"),
+		("110", "2014/03/22", "12", "202"),
+		("111", "2014/03/22", "12", "202"),
+		("108", "2014/03/22", "12", "202"),
+		("112", "2014/03/22", "12", "202"),
+		("109", "2014/03/22", "12", "202"),
+		("107", "2014/03/22", "35", "202"),
+		("105", "2014/03/29", "40", "202"),
+		("106", "2014/03/29", "40", "202"),
+		("110", "2014/03/29", "35", "202"),
+		("111", "2014/03/29", "35", "202"),
+		("113", "2014/03/29", "40", "202"),
+		("112", "2014/03/29", "35", "202"),
+		("109", "2014/03/29", "35", "202"),
+		("107", "2014/03/29", "35", "202");
 
 commit;
