@@ -1,8 +1,8 @@
 #!usr/local/bin
 
+import getpass
 import mysql.connector
 from mysql.connector import Error
-import getpass
 
 # Please input your connection info here.
 
