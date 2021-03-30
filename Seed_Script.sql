@@ -135,7 +135,7 @@ insert into employee(Region_ID, Emp_Lname, Emp_Fname, EMP_Hiredate)
 CREATE TABLE empskill (
     Emp_ID INT NOT NULL,
     Skill_ID INT NOT NULL,
-    PRIMARY KEY (Emp_ID, Skill_ID),
+    PRIMARY KEY (Emp_ID , Skill_ID),
     FOREIGN KEY (Emp_ID)
         REFERENCES employee (Emp_ID),
     FOREIGN KEY (Skill_ID)
@@ -329,7 +329,24 @@ insert into task_skills(Task_ID, Skill_ID, TS_Qty)
 	values
 		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1),
 		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 1),
-		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1);
+		((select Task_ID from task where Task_Info = 'Initial Interview'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1),
+		((select Task_ID from task where Task_Info = 'Database Design'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1),
+		((select Task_ID from task where Task_Info = 'System Design'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 2),
+		((select Task_ID from task where Task_Info = 'System Design'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst I'), 1),
+		((select Task_ID from task where Task_Info = 'Database Implementation'), (select Skill_ID from skill where Skill_Descrpt = 'Oracle DBA'), 1),
+		((select Task_ID from task where Task_Info = 'System Coding & Testing'), (select Skill_ID from skill where Skill_Descrpt = 'Cobol I'), 2),
+		((select Task_ID from task where Task_Info = 'System Coding & Testing'), (select Skill_ID from skill where Skill_Descrpt = 'Cobol II'), 1),
+		((select Task_ID from task where Task_Info = 'System Coding & Testing'), (select Skill_ID from skill where Skill_Descrpt = 'Oracle DBA'), 1),
+		((select Task_ID from task where Task_Info = 'System Documentation'), (select Skill_ID from skill where Skill_Descrpt = 'Technical Writer'), 1),
+		((select Task_ID from task where Task_Info = 'Final Evaluation'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1),
+		((select Task_ID from task where Task_Info = 'Final Evaluation'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 1),
+		((select Task_ID from task where Task_Info = 'Final Evaluation'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1),
+		((select Task_ID from task where Task_Info = 'Final Evaluation'), (select Skill_ID from skill where Skill_Descrpt = 'Cobol II'), 1),
+		((select Task_ID from task where Task_Info = 'On-Site System Online and Data Loading'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1),
+		((select Task_ID from task where Task_Info = 'On-Site System Online and Data Loading'), (select Skill_ID from skill where Skill_Descrpt = 'Systems Analyst II'), 1),
+		((select Task_ID from task where Task_Info = 'On-Site System Online and Data Loading'), (select Skill_ID from skill where Skill_Descrpt = 'DB Designer I'), 1),
+		((select Task_ID from task where Task_Info = 'On-Site System Online and Data Loading'), (select Skill_ID from skill where Skill_Descrpt = 'Cobol II'), 1),
+		((select Task_ID from task where Task_Info = 'Sign-Off'), (select Skill_ID from skill where Skill_Descrpt = 'Project Manager'), 1);
 
 CREATE TABLE assign (
     Asn_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -342,6 +359,21 @@ CREATE TABLE assign (
     FOREIGN KEY (TS_ID)
         REFERENCES task_skills (TS_ID)
 );
+
+insert into assign(Emp_ID, Asn_DateSt, Asn_DateEnd, TS_ID)
+	values
+		((select employee.EMP_ID from employee, region, skill, empskill where employee.Region_ID = region.Region_ID and region.Region_Name = 'NW' and employee.Emp_ID = empskill.Emp_ID and skill.Skill_ID = empskill.Skill_ID and skill.Skill_Descrpt = "Project Manager"), 
+			"2014/03/01", 
+			"2014/03/06", 
+			(SELECT TS_ID FROM task_skills, task, skill WHERE task_skills.Skill_ID = skill.Skill_ID AND task_skills.Task_ID = task.Task_ID AND Task_Info = "Initial Interview" AND skill.Skill_Descrpt = 'Project Manager')),
+		((select employee.EMP_ID from employee, region, skill, empskill where employee.Region_ID = region.Region_ID and region.Region_Name = 'NW' and employee.Emp_ID = empskill.Emp_ID and skill.Skill_ID = empskill.Skill_ID and skill.Skill_Descrpt = "Systems Analyst II"), 
+			"2014/03/01", 
+			"2014/03/06", 
+			(SELECT TS_ID FROM task_skills, task, skill WHERE task_skills.Skill_ID = skill.Skill_ID AND task_skills.Task_ID = task.Task_ID AND Task_Info = "Initial Interview" AND skill.Skill_Descrpt = "Systems Analyst II")),
+		((select employee.EMP_ID from employee, region, skill, empskill where employee.Region_ID = region.Region_ID and region.Region_Name = 'NW' and employee.Emp_ID = empskill.Emp_ID and skill.Skill_ID = empskill.Skill_ID and skill.Skill_Descrpt = "DB Designer I"), 
+			"2014/03/01", 
+			"2014/03/06", 
+			(SELECT TS_ID FROM task_skills, task, skill WHERE task_skills.Skill_ID = skill.Skill_ID AND task_skills.Task_ID = task.Task_ID AND Task_Info = "Initial Interview" AND skill.Skill_Descrpt = "DB Designer I"));
 
 CREATE TABLE bill (
     Bill_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

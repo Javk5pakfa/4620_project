@@ -3,7 +3,7 @@
 import mysql.connector
 from mysql.connector import Error
 
-db_name = "4620project"
+db_name = "4620Project"
 
 try:
     connection = mysql.connector.connect(host='jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com',
