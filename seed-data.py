@@ -3,12 +3,16 @@
 import mysql.connector
 from mysql.connector import Error
 
+# Please input your connection info here.
 db_name = "4620Project"
+hostname = "jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com"
+username = "Javk5pakfa"
+passwd = "GoJack123CU!"
 
 try:
-    connection = mysql.connector.connect(host='jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com',
-                                         user='Javk5pakfa',
-                                         password='GoJack123CU!')
+    connection = mysql.connector.connect(host=hostname,
+                                         user=username,
+                                         password=passwd)
     if connection.is_connected():
         print("1st connection successful.")
         cursor = connection.cursor()
@@ -25,10 +29,10 @@ finally:
 
 # 2nd connection, where the bulk of the operation is located.
 try:
-    connection = mysql.connector.connect(host='jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com',
+    connection = mysql.connector.connect(host=hostname,
                                          database=db_name,
-                                         user='Javk5pakfa',
-                                         password='GoJack123CU!')
+                                         user=username,
+                                         password=passwd)
     if connection.is_connected():
         print("2nd connection successful.")
         cursor = connection.cursor()
