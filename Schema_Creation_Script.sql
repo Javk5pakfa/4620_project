@@ -2,103 +2,116 @@ create schema 4620Project;
 
 use 4620Project;
 
-create table region (
-	Region_ID int not null auto_increment primary key,
-    Region_Name char(2) unique not null
+CREATE TABLE region (
+    Region_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Region_Name CHAR(2) UNIQUE NOT NULL
 );
 
-create table skill (
-	Skill_ID int not null auto_increment primary key,
-    Skill_Descrpt varchar(255) unique not null,
-    Skill_Rate float not null
+CREATE TABLE skill (
+    Skill_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Skill_Descrpt VARCHAR(255) UNIQUE NOT NULL,
+    Skill_Rate FLOAT NOT NULL
 );
 
-create table customer (
-	Cus_ID int not null auto_increment primary key,
-    Region_ID int not null,
-    Cus_Name varchar(255) not null,
-    Cus_Phone varchar(255),
-    foreign key (Region_ID)
-		references region(Region_ID)
+CREATE TABLE customer (
+    Cus_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Region_ID INT NOT NULL,
+    Cus_Name VARCHAR(255) NOT NULL,
+    Cus_Phone VARCHAR(255),
+    FOREIGN KEY (Region_ID)
+        REFERENCES region (Region_ID)
 );
 
-create table employee (
-	Emp_ID int not null auto_increment primary key,
-    Region_ID int not null,
-    Emp_Lname varchar(255) not null,
-    Emp_Mi char(1),
-    Emp_Fname varchar(255) not null,
-    Emp_Hiredate Date not null,
-    foreign key (Region_ID) references region(Region_ID)
+CREATE TABLE employee (
+    Emp_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Region_ID INT NOT NULL,
+    Emp_Lname VARCHAR(255) NOT NULL,
+    Emp_Mi CHAR(1),
+    Emp_Fname VARCHAR(255) NOT NULL,
+    Emp_Hiredate DATE NOT NULL,
+    FOREIGN KEY (Region_ID)
+        REFERENCES region (Region_ID)
 );
 
-create table empskill (
-	Emp_ID int not null,
-    Skill_ID int not null,
-    primary key (Emp_ID, Skill_ID),
-    foreign key (Emp_ID) references employee(Emp_ID),
-    foreign key (Skill_ID) references skill(Skill_ID)
+CREATE TABLE empskill (
+    Emp_ID INT NOT NULL,
+    Skill_ID INT NOT NULL,
+    PRIMARY KEY (Emp_ID , Skill_ID),
+    FOREIGN KEY (Emp_ID)
+        REFERENCES employee (Emp_ID),
+    FOREIGN KEY (Skill_ID)
+        REFERENCES skill (Skill_ID)
 );
 
-create table project (
-	Proj_ID int not null auto_increment primary key,
-    Cus_ID int not null,
-    Emp_ID int not null,
-    Proj_Date Date not null,
-    Proj_Descrpt varchar(255) not null,
-    Proj_EstDateSt Date not null,
-    Proj_EstDateEnd Date not null,
-    Proj_EstBudget float not null,
-    Proj_ActDateSt date,
-    Proj_ActDateEnd date,
-    Proj_ActCost float,
-    foreign key (Cus_ID) references customer(Cus_ID),
-    foreign key (Emp_ID) references employee(Emp_ID)
+CREATE TABLE project (
+    Proj_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Cus_ID INT NOT NULL,
+    Emp_ID INT NOT NULL,
+    Proj_Date DATE NOT NULL,
+    Proj_Descrpt VARCHAR(255) NOT NULL,
+    Proj_EstDateSt DATE NOT NULL,
+    Proj_EstDateEnd DATE NOT NULL,
+    Proj_EstBudget FLOAT NOT NULL,
+    Proj_ActDateSt DATE,
+    Proj_ActDateEnd DATE,
+    Proj_ActCost FLOAT,
+    FOREIGN KEY (Cus_ID)
+        REFERENCES customer (Cus_ID),
+    FOREIGN KEY (Emp_ID)
+        REFERENCES employee (Emp_ID)
 );
 
-create table task (
-	Task_ID int not null auto_increment primary key,
-    Proj_ID int not null,
-    Task_Info varchar(255) not null,
-    Task_DateSt date,
-    Task_dateEnd date,
-    foreign key (Proj_ID) references project(Proj_ID)
+CREATE TABLE task (
+    Task_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Proj_ID INT NOT NULL,
+    Task_Info VARCHAR(255) NOT NULL,
+    Task_DateSt DATE,
+    Task_dateEnd DATE,
+    FOREIGN KEY (Proj_ID)
+        REFERENCES project (Proj_ID)
 );
 
-create table task_skills (
-	TS_ID int not null auto_increment primary key,
-    Task_ID int not null,
-    Skill_ID int not null,
-    TS_Qty int not null,
-    foreign key (Task_ID) references task(Task_ID),
-    foreign key (Skill_ID) references skill(Skill_ID)
+CREATE TABLE task_skills (
+    TS_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Task_ID INT NOT NULL,
+    Skill_ID INT NOT NULL,
+    TS_Qty INT NOT NULL,
+    FOREIGN KEY (Task_ID)
+        REFERENCES task (Task_ID),
+    FOREIGN KEY (Skill_ID)
+        REFERENCES skill (Skill_ID)
 );
 
-create table assign (
-	Asn_ID int not null auto_increment primary key,
-    Emp_ID int not null,
-    Asn_DateSt date,
-    Asn_DateEnd date,
-    TS_ID int not null,
-    foreign key (Emp_ID) references employee(Emp_ID),
-    foreign key (TS_ID) references task_skills(TS_ID)
+CREATE TABLE assign (
+    Asn_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Emp_ID INT NOT NULL,
+    Asn_DateSt DATE,
+    Asn_DateEnd DATE,
+    TS_ID INT NOT NULL,
+    FOREIGN KEY (Emp_ID)
+        REFERENCES employee (Emp_ID),
+    FOREIGN KEY (TS_ID)
+        REFERENCES task_skills (TS_ID)
 );
 
-create table bill (
-	Bill_ID int not null auto_increment primary key,
-    Bill_Date date not null,
-    Proj_ID int not null,
-    foreign key (Proj_ID) references project(Proj_ID)
+CREATE TABLE bill (
+    Bill_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Bill_Date DATE NOT NULL,
+    Proj_ID INT NOT NULL,
+    FOREIGN KEY (Proj_ID)
+        REFERENCES project (Proj_ID)
 );
 
-create table worklog (
-	WL_ID int not null auto_increment primary key,
-    Asn_ID int not null,
-    WL_date date not null,
-    WL_Hours float,
-    Bill_ID int,
-    foreign key (Asn_ID) references assign(Asn_ID),
-    foreign key (Bill_ID) references bill(Bill_ID)
+CREATE TABLE worklog (
+    WL_ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    Asn_ID INT NOT NULL,
+    WL_date DATE NOT NULL,
+    WL_Hours FLOAT,
+    Bill_ID INT,
+    FOREIGN KEY (Asn_ID)
+        REFERENCES assign (Asn_ID),
+    FOREIGN KEY (Bill_ID)
+        REFERENCES bill (Bill_ID)
 );
 
 commit;
