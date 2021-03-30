@@ -2,12 +2,25 @@
 
 import mysql.connector
 from mysql.connector import Error
+import getpass
 
 # Please input your connection info here.
-db_name = "4620Project"
+db_name = ""
 hostname = ""
 username = ""
 passwd = ""
+
+print("Your username: ")
+username = input('--> ')
+
+print("Your password")
+passwd = getpass.getpass()
+
+print("Host name to connect to: ")
+hostname = input('--> ')
+
+print("Name of database: ")
+db_name = input('--> ')
 
 try:
     connection = mysql.connector.connect(host=hostname,
