@@ -5,10 +5,6 @@ from mysql.connector import Error
 import getpass
 
 # Please input your connection info here.
-db_name = ""
-hostname = ""
-username = ""
-passwd = ""
 
 print("Your username: ")
 username = input('--> ')
@@ -31,6 +27,9 @@ try:
         cursor = connection.cursor()
         print("create database " + db_name)
         cursor.execute("create database " + db_name)
+    else:
+        print("Connection error.")
+        quit()
 
 except Error as e:
     print("Error while connecting to MySQL", e)
@@ -39,6 +38,9 @@ finally:
         cursor.close()
         connection.close()
         print("1st connection is closed")
+    else:
+        print("Error while closing connection.")
+        quit()
 
 # 2nd connection, where the bulk of the operation is located.
 try:
