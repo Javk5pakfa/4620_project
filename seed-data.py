@@ -5,9 +5,9 @@ from mysql.connector import Error
 
 # Please input your connection info here.
 db_name = "4620Project"
-hostname = "jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com"
-username = "Javk5pakfa"
-passwd = "GoJack123CU!"
+hostname = ""
+username = ""
+passwd = ""
 
 try:
     connection = mysql.connector.connect(host=hostname,
