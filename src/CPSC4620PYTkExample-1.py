@@ -18,9 +18,9 @@ class Database:
     def __init__(self):
         try:
             self.dbConnection = mysql.connector.connect(
-                host="xxxxx.rds.amazonaws.com",
+                host="jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com",
                 user="Javk5pakfa",
-                passwd="GoJack123CU!", database="yourschema")
+                passwd="GoJack123CU!", database="4620Test")
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print("Something is wrong with your user name or password")
@@ -28,7 +28,7 @@ class Database:
                 print("Database does not exist")
             else:
                 print(err)
-        self.dbCursor = self.dbConnection.cursor()
+        self.dbCursor = self.dbConnection.dbCursor()
 
     def TableCreate(self):
         try:
@@ -268,6 +268,8 @@ class InsertWindow:
         self.historyEntry.delete(0, tkinter.END)
         self.doctorEntry.delete(0, tkinter.END)
 
+
+class UpdateWindow:
     # window defintion for the Update Window:
     def __init__(self, id):
         self.window = tkinter.Tk()
