@@ -173,6 +173,18 @@ class Database:
         except mysql.connector.Error as err:
             print(err)
 
+    def query_employee_skill(self):
+        query = "select Skill_Descrpt, Emp_Fname, Emp_Lname from " \
+                "skill, employee, empskill" \
+                "where employee.Emp_ID = empskill.Emp_ID " \
+                "and skill.Skill_ID = empskill.Skill_ID"
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            print(err)
+
     def query_project_schedule(self):
         pass
 
