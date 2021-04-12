@@ -174,6 +174,13 @@ class Database:
             print(err)
 
     def query_employee_skill(self):
+        """
+        This method queries the database of the employee/skill inventory.
+
+        :return: A list of tuples showing skill, first name, and last name
+        of the employee that has that skill.
+        """
+
         query = "select Skill_Descrpt, Emp_Fname, Emp_Lname from " \
                 "skill, employee, empskill" \
                 "where employee.Emp_ID = empskill.Emp_ID " \
@@ -192,4 +199,16 @@ class Database:
         pass
 
     def query_worklog(self):
-        pass
+        """
+        This method returns the work-log table.
+
+        :return: A list of tuples representing work-log table.
+        """
+
+        query = "select * from worklog"
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            print(err)
