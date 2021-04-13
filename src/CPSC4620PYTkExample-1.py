@@ -28,7 +28,7 @@ class Database:
                 print("Database does not exist")
             else:
                 print(err)
-        self.dbCursor = self.dbConnection.dbCursor()
+        self.dbCursor = self.dbConnection.cursor()
 
     def TableCreate(self):
         try:
@@ -548,8 +548,8 @@ class HomePage:
     def __init__(self):
         self.homePageWindow = tkinter.Tk()
         self.homePageWindow.wm_title("Patient Information System")
-        self.database = Database()
-        self.database.TableCreate()
+        # self.database = Database()
+        # self.database.TableCreate()
         tkinter.Label(self.homePageWindow, text="Home Page", width=100).grid(
             pady=20, column=1, row=1)
 

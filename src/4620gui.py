@@ -3,6 +3,8 @@ import mysql.connector
 from mysql.connector import errorcode
 from datetime import date, datetime, timedelta
 import tkinter
+import tkinter.ttk
+import tkinter.messagebox
 
 
 class Database:
@@ -25,10 +27,6 @@ class Database:
             else:
                 print(err)
         self.dbCursor = self.dbConnection.cursor()
-
-    def __del__(self):
-        self.dbCursor.close()
-        self.dbConnection.close()
 
     def query_generic_table(self, table_name):
         """
@@ -173,6 +171,9 @@ class Database:
         except mysql.connector.Error as err:
             print(err)
 
+    def query_project_schedule(self):
+        pass
+
     def query_employee_skill(self):
         """
         This method queries the database of the employee/skill inventory.
@@ -192,9 +193,6 @@ class Database:
         except mysql.connector.Error as err:
             print(err)
 
-    def query_project_schedule(self):
-        pass
-
     def query_assignment(self):
         pass
 
@@ -212,3 +210,85 @@ class Database:
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
             print(err)
+
+
+class ReportWindow:
+    """
+    This class represents the report window.
+    """
+
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.window.wm_title("Database Report Window")
+
+        tkinter.Button(
+            self.window, width=25, text="Report"
+        ).grid(
+            pady=10, column=1, row=2
+        )
+
+        self.window.mainloop()
+
+
+class UpdateWindow:
+
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.window.wm_title("Database Update Window")
+
+        self.window.mainloop()
+
+
+class SearchWindow:
+    pass
+
+
+class HomePage:
+    """
+    This class represents the home screen of the database GUI. WIP.
+    """
+
+    def __init__(self):
+        self.homePageWindow = tkinter.Tk()
+        self.homePageWindow.wm_title("4620 Project Database Access Terminal")
+        # self.database = Database()
+
+        # Width of home screen.
+        tkinter.Label(self.homePageWindow, width=50, text="Home Page").grid(
+            pady=20, column=1, row=1
+        )
+
+        self.update_window = UpdateWindow
+        self.report_window = ReportWindow
+
+        # Buttons.
+        tkinter.Button(
+            self.homePageWindow, width=25, text="Report",
+            command=self.report_window
+        ).grid(
+            pady=10, column=1, row=2
+        )
+        tkinter.Button(
+            self.homePageWindow, width=25, text="Search"
+        ).grid(
+            pady=10, column=1, row=3
+        )
+        tkinter.Button(
+            self.homePageWindow, width=25, text="Update",
+            command=self.update_window
+        ).grid(
+            pady=10, column=1, row=4
+        )
+        tkinter.Button(
+            self.homePageWindow, width=25, text="Quit",
+            command=self.homePageWindow.destroy
+        ).grid(
+            pady=10, column=1, row=5
+        )
+
+        self.homePageWindow.mainloop()
+
+
+mainPage = HomePage()
+# mainPage.database.dbCursor.close()
+# mainPage.database.dbConnection.close()
