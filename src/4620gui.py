@@ -171,7 +171,16 @@ class Database:
         except mysql.connector.Error as err:
             print(err)
 
-    def query_project_schedule(self):
+    def query_project_schedule(self, project_data):
+        """
+        This method delivers the assignments associated with a particular
+        project.
+
+        :param project_data: A list of tuples containing the project
+        information.
+        :return: A list of tuples of assignment information.
+        """
+
         pass
 
     def query_employee_skill(self):
@@ -221,10 +230,29 @@ class ReportWindow:
         self.window = tkinter.Tk()
         self.window.wm_title("Database Report Window")
 
+        tkinter.Label(self.window, width=50, text="Report Window").grid(
+            pady=20, column=1, row=1
+        )
+
         tkinter.Button(
-            self.window, width=25, text="Report"
+            self.window, width=25, text="Employee-Skill Inventory"
         ).grid(
             pady=10, column=1, row=2
+        )
+        tkinter.Button(
+            self.window, width=25, text="Project Schedule"
+        ).grid(
+            pady=10, column=1, row=3
+        )
+        tkinter.Button(
+            self.window, width=25, text="Assignment Form"
+        ).grid(
+            pady=10, column=1, row=4
+        )
+        tkinter.Button(
+            self.window, width=25, text="Work-log"
+        ).grid(
+            pady=10, column=1, row=5
         )
 
         self.window.mainloop()
