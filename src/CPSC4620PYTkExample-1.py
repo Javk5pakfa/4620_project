@@ -497,7 +497,7 @@ class DatabaseView:
         self.databaseView.column("doctor", width=100)
 
         for record in data:
-            self.databaseView.insert('', 'end', values=(record))
+            self.databaseView.insert('', 'end', values=record)
 
         self.databaseViewWindow.mainloop()
 

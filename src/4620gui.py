@@ -28,6 +28,10 @@ class Database:
                 print(err)
         self.dbCursor = self.dbConnection.cursor()
 
+    def __del__(self):
+        self.dbCursor.close()
+        self.dbConnection.close()
+
     def query_generic_table(self, table_name):
         """
         This method takes in a table_name and returns the table data
@@ -235,9 +239,9 @@ class Database:
         """
 
         query = "select Skill_Descrpt, Emp_Fname, Emp_Lname from " \
-                "skill, employee, empskill" \
+                "skill, employee, empskill " \
                 "where employee.Emp_ID = empskill.Emp_ID " \
-                "and skill.Skill_ID = empskill.Skill_ID"
+                "and skill.Skill_ID = empskill.Skill_ID "
 
         try:
             self.dbCursor.execute(query)
@@ -275,9 +279,11 @@ class ReportWindow:
         )
 
         self.project_query_window = ProjectQueryWindow
+        self.employee_skill_window = EmpSkillWindow
 
         tkinter.Button(
-            self.window, width=25, text="Employee-Skill Inventory"
+            self.window, width=25, text="Employee-Skill Inventory",
+            command=self.employee_skill_window
         ).grid(
             pady=10, column=1, row=2
         )
@@ -301,7 +307,44 @@ class ReportWindow:
         self.window.mainloop()
 
 
+class EmpSkillWindow:
+    def __init__(self):
+        # Variable declaration.
+        test_database = Database()
+        test_data = test_database.query_employee_skill()
+
+        # Window definiton.
+        self.window = tkinter.Tk()
+        self.window.wm_title("Employee-Skill Inventory")
+        tkinter.Label(self.window, text="Table View", width=25).grid(
+            pady=5, column=1, row=1
+        )
+
+        # Table definition.
+        self.employee_skill_view = tkinter.ttk.Treeview(self.window)
+        self.employee_skill_view.grid(pady=5, column=1, row=2)
+        self.employee_skill_view["show"] = "headings"
+        self.employee_skill_view["columns"] = ("Skill", "lname",
+                                               "fname")
+
+        self.employee_skill_view.heading("Skill", text="Skill")
+        self.employee_skill_view.heading("lname", text="Last Name")
+        self.employee_skill_view.heading("fname", text="First Name")
+
+        self.employee_skill_view.column("Skill", width=150)
+        self.employee_skill_view.column("lname", width=120)
+        self.employee_skill_view.column("fname", width=120)
+
+        # Load data into window.
+        for item in test_data:
+            self.employee_skill_view.insert('', 'end', values=item)
+
+
 class ProjectQueryWindow:
+    """
+    This class represents the window where project reports are displayed.
+    """
+
     def __init__(self):
         self.window = tkinter.Tk()
         self.window.wm_title("Project Selection Window")
