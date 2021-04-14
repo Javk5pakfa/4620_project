@@ -171,17 +171,60 @@ class Database:
         except mysql.connector.Error as err:
             print(err)
 
-    def query_project_schedule(self, project_data):
+    def query_project_tasks(self, project_data):
         """
         This method delivers the assignments associated with a particular
         project.
+
+        Precondition: project_data contains one project information only.
 
         :param project_data: A list of tuples containing the project
         information.
         :return: A list of tuples of assignment information.
         """
 
-        pass
+        # Get project ID.
+        project_id = project_data[0][0]
+        query = "select task_datest, task_dateend, task_info, skill_descrpt, " \
+                "TS_Qty " \
+                "from skill, task_skills, task " \
+                "where task_skills.task_id = task.task_id " \
+                "and proj_id = {} " \
+                "and task_skills.skill_id = skill.skill_id " \
+                "order by task_datest".format(project_id)
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            print(err)
+
+    def query_assignment(self, project_data):
+        """
+        This method produces data for the assignment window.
+
+        :param project_data: Data of project of interest.
+        :return: Assignment data in a list of tuples.
+        """
+
+        project_id = project_data[0][0]
+        query = "select task_datest, task_dateend, task_info, " \
+                "skill_descrpt, asn_id, emp_lname, emp_fname, " \
+                "asn_dateest, asn_dateend " \
+                "from assign, employee, task, skill, task_skills " \
+                "where task_skills.task_id = task.task_id " \
+                "and proj_id = {} " \
+                "and task_skills.skill_id = skill.skill_id " \
+                "and assign.emp_id = employee.emp_id " \
+                "and assign.ts_id = task_skills.ts_id " \
+                "GROUP BY asn_id " \
+                "ORDER BY task_datest".format(project_id)
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            print(err)
 
     def query_employee_skill(self):
         """
@@ -201,9 +244,6 @@ class Database:
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
             print(err)
-
-    def query_assignment(self):
-        pass
 
     def query_worklog(self):
         """
@@ -234,13 +274,16 @@ class ReportWindow:
             pady=20, column=1, row=1
         )
 
+        self.project_query_window = ProjectQueryWindow
+
         tkinter.Button(
             self.window, width=25, text="Employee-Skill Inventory"
         ).grid(
             pady=10, column=1, row=2
         )
         tkinter.Button(
-            self.window, width=25, text="Project Schedule"
+            self.window, width=25, text="Project Schedule",
+            command=self.project_query_window
         ).grid(
             pady=10, column=1, row=3
         )
@@ -253,6 +296,19 @@ class ReportWindow:
             self.window, width=25, text="Work-log"
         ).grid(
             pady=10, column=1, row=5
+        )
+
+        self.window.mainloop()
+
+
+class ProjectQueryWindow:
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.window.wm_title("Project Selection Window")
+
+        tkinter.Label(self.window, width=50,
+                      text="Project Selection Window").grid(
+            pady=20, column=1, row=1
         )
 
         self.window.mainloop()
