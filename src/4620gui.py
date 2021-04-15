@@ -1,7 +1,7 @@
-import sys
+# import sys
 import mysql.connector
 from mysql.connector import errorcode
-from datetime import date, datetime, timedelta
+# from datetime import date, datetime, timedelta
 import tkinter
 import tkinter.ttk
 import tkinter.messagebox
@@ -265,6 +265,10 @@ class Database:
             print(err)
 
 
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
 class ReportWindow:
     """
     This class represents the report window.
@@ -278,7 +282,7 @@ class ReportWindow:
             pady=20, column=1, row=1
         )
 
-        self.project_query_window = ProjectQueryWindow
+        self.project_schedule_window = ProjectScheduleWindow
         self.employee_skill_window = EmpSkillWindow
 
         tkinter.Button(
@@ -289,7 +293,7 @@ class ReportWindow:
         )
         tkinter.Button(
             self.window, width=25, text="Project Schedule",
-            command=self.project_query_window
+            command=self.project_schedule_window
         ).grid(
             pady=10, column=1, row=3
         )
@@ -313,10 +317,10 @@ class EmpSkillWindow:
         test_database = Database()
         test_data = test_database.query_employee_skill()
 
-        # Window definiton.
+        # Window definition.
         self.window = tkinter.Tk()
         self.window.wm_title("Employee-Skill Inventory")
-        tkinter.Label(self.window, text="Table View", width=25).grid(
+        tkinter.Label(self.window, text="Table View", width=50).grid(
             pady=5, column=1, row=1
         )
 
@@ -340,9 +344,12 @@ class EmpSkillWindow:
             self.employee_skill_view.insert('', 'end', values=item)
 
 
-class ProjectQueryWindow:
+# -----------------------------------------------------------------------------
+
+class ProjectScheduleWindow:
     """
-    This class represents the window where project reports are displayed.
+    This class represents the window where options for different types of
+    project reports are displayed.
     """
 
     def __init__(self):
