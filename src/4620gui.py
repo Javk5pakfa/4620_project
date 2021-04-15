@@ -570,59 +570,70 @@ class ProjectScheduleWindow:
                 tkinter.Label(
                     ps_window,
                     text="Project ID: {}".format(project_data[0][0]),
-                    width=40
                 ).grid(
                     pady=5, column=0, row=1
                 )
                 tkinter.Label(
                     ps_window,
                     text="Description: {}".format(project_data[0][4]),
-                    width=40
                 ).grid(
                     pady=5, column=1, row=1
                 )
                 tkinter.Label(
                     ps_window,
                     text="Company: {}".format(customer_data[0][2]),
-                    width=40
                 ).grid(
                     pady=5, column=0, row=2
                 )
                 tkinter.Label(
                     ps_window,
                     text="Contract Date: {}".format(project_data[0][3]),
-                    width=40
                 ).grid(
                     pady=5, column=1, row=2
                 )
                 tkinter.Label(
                     ps_window,
                     text="Region: {}".format(region_data[0][1]),
-                    width=40
                 ).grid(
                     pady=5, column=2, row=2
                 )
                 tkinter.Label(
                     ps_window,
                     text="Start Date: {}".format(project_data[0][5]),
-                    width=40
                 ).grid(
                     pady=5, column=0, row=3
                 )
                 tkinter.Label(
                     ps_window,
                     text="End Date: {}".format(project_data[0][6]),
-                    width=40
                 ).grid(
                     pady=5, column=1, row=3
                 )
                 tkinter.Label(
                     ps_window,
                     text="Budget: ${}".format(project_data[0][7]),
-                    width=40
                 ).grid(
                     pady=5, column=2, row=3
                 )
+
+                # Schedule table definition.
+                p_s_view = tkinter.ttk.Treeview(ps_window)
+                p_s_view.grid(pady=10, column=1, row=5)
+
+                p_s_view["show"] = "headings"
+                p_s_view["columns"] = (
+                    "Start Date", "End Date", "Task Description",
+                    "Skill(s) Required", "Quantity Required"
+                )
+
+                # Table column headings.
+                for heading in p_s_view["columns"]:
+                    p_s_view.heading(heading, text=heading)
+                    p_s_view.column(heading, width=250)
+
+                # Load data into table.
+                for item in schedule_data:
+                    p_s_view.insert('', 'end', values=item)
             else:
                 ErrorMessageWindow("No project found with given info.")
 
