@@ -370,6 +370,30 @@ class SearchWindow:
     pass
 
 
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
+class ErrorMessageWindow:
+    """
+    This class represents a generic error message window that pops whenever
+    a user input results in error.
+    """
+
+    def __init__(self, message):
+        self.window = tkinter.Tk()
+        self.window.wm_title("ERROR")
+
+        self.error_message = message
+        tkinter.Label(self.window, text=self.error_message).pack(
+            pady=10, padx=10
+        )
+
+        tkinter.Button(
+            self.window, text="Quit", command=self.window.destroy
+        ).pack()
+
+
 class HomePage:
     """
     This class represents the home screen of the database GUI. WIP.
