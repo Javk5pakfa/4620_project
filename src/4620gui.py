@@ -84,22 +84,22 @@ class Database:
             query = "select * from employee where "
             if region is not None:
                 query = query + "region.Region_ID=employee.Region_ID " \
-                                "and Region_Name={} ".format(region)
+                                "and Region_Name='{}' ".format(region)
             if fname is not None:
                 if region is None:
-                    query = query + "Emp_Fname={} ".format(fname)
+                    query = query + "Emp_Fname='{}' ".format(fname)
                 else:
-                    query = query + "and Emp_Fname={} ".format(fname)
+                    query = query + "and Emp_Fname='{}' ".format(fname)
             if lname is not None:
                 if region is None and fname is None:
-                    query = query + "Emp_Lname={} ".format(lname)
+                    query = query + "Emp_Lname='{}' ".format(lname)
                 else:
-                    query = query + "and Emp_Lname={} ".format(lname)
+                    query = query + "and Emp_Lname='{}' ".format(lname)
             if hire_date is not None:
                 if region is None and fname is None and lname is None:
-                    query = query + "Emp_Hiredate={} ".format(hire_date)
+                    query = query + "Emp_Hiredate='{}' ".format(hire_date)
                 else:
-                    query = query + "and Emp_Hiredate={} ".format(hire_date)
+                    query = query + "and Emp_Hiredate='{}' ".format(hire_date)
 
             try:
                 self.dbCursor.execute(query)
@@ -113,28 +113,14 @@ class Database:
         else:
             return results
 
-    def query_project(self, pj_id=None, cus_id=None, emp_id=None,
-                      pj_date=None, pj_info=None,
-                      pj_eststartdate=None, pj_estenddate=None,
-                      pj_estbudget=None, pj_actstartdate=None,
-                      pj_actenddate=None, pj_actcost=None):
+    def query_project(self, project_query_options):
         """
         This method queries the project table of the database based on given
         information.
 
         Precondition: Needs to have at least one argument.
 
-        :param pj_id: Project ID.
-        :param cus_id: Customer ID.
-        :param emp_id: Employee ID of the manager.
-        :param pj_date: Project contract date.
-        :param pj_info: Project description.
-        :param pj_eststartdate: Project estimated start date.
-        :param pj_estenddate: Project estimated end date.
-        :param pj_estbudget: Project estimated budget.
-        :param pj_actstartdate: Actual start date.
-        :param pj_actenddate: Actual end date.
-        :param pj_actcost: Actual cost of the project.
+        :param project_query_options: A list of query entries.
         :return: A list of tuples containing project information.
         """
 
@@ -144,27 +130,25 @@ class Database:
                      "Proj_EstBudget", "Proj_ActDateSt",
                      "Proj_ActDateEnd", "Proj_ActCost"]
 
-        options = (pj_id, cus_id, emp_id, pj_date, pj_info,
-                   pj_eststartdate, pj_estenddate, pj_estenddate,
-                   pj_estbudget, pj_actstartdate, pj_actenddate, pj_actcost)
+        entries = project_query_options
         options_index = []
-        arguments = ()
+        arguments = []
 
         index = 0
-        for item in options:
+        for item in entries:
             if item is not None:
-                arguments.__add__(item)
+                arguments.append(item)
                 options_index.append(index)
             index += 1
 
         count = 0
         for arg in arguments:
             if count == 0:
-                query = query + "{}={} ".format(
+                query = query + "{}='{}' ".format(
                     row_names[options_index[count]],
                     arg)
             else:
-                query = query + "and {}={} ".format(
+                query = query + "and {}='{}' ".format(
                     row_names[options_index[count]],
                     arg)
             count += 1
@@ -193,7 +177,7 @@ class Database:
                 "TS_Qty " \
                 "from skill, task_skills, task " \
                 "where task_skills.task_id = task.task_id " \
-                "and proj_id = {} " \
+                "and proj_id = '{}' " \
                 "and task_skills.skill_id = skill.skill_id " \
                 "order by task_datest".format(project_id)
 
@@ -217,7 +201,7 @@ class Database:
                 "asn_dateest, asn_dateend " \
                 "from assign, employee, task, skill, task_skills " \
                 "where task_skills.task_id = task.task_id " \
-                "and proj_id = {} " \
+                "and proj_id = '{}' " \
                 "and task_skills.skill_id = skill.skill_id " \
                 "and assign.emp_id = employee.emp_id " \
                 "and assign.ts_id = task_skills.ts_id " \
@@ -264,15 +248,42 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    def query_customer_cusid(self, cus_id):
+    def query_customer(self,
+                       cus_id=None,
+                       cus_name=None,
+                       cus_phone=None):
         """
         This method returns customer info based on customer id.
 
+        :param cus_phone: Phone number of customer.
+        :param cus_name: Name of customer.
         :param cus_id: Customer ID.
         :return: A list of tuples containing customer information.
         """
 
-        query = "select * from customer where cus_id = {}".format(cus_id)
+        query = "select * from customer where "
+
+        options = [cus_id, cus_name, cus_phone]
+        row_names = ["cus_id", "cus_name", "cus_phone"]
+        index = 0
+        num_args = 0
+        for item in options:
+            if index == 0:
+                if item is not None:
+                    if num_args == 0:
+                        query = query + "{}='{}' ".format(row_names[index], item)
+                    else:
+                        query = query + "and {}='{}' ".format(row_names[index], item)
+                    num_args += 1
+            else:
+                if item is not None:
+                    if num_args == 0:
+                        query = query + "{}='{}' ".format(row_names[index], item)
+                    else:
+                        query = query + "and {}='{}' ".format(row_names[index],
+                                                              item)
+                    num_args += 1
+            index += 1
 
         try:
             self.dbCursor.execute(query)
@@ -288,7 +299,7 @@ class Database:
         :return: A list of tuples containing region info.
         """
 
-        query = "select * from region where region_id={}".format(region_id)
+        query = "select * from region where region_id='{}'".format(region_id)
 
         try:
             self.dbCursor.execute(query)
@@ -385,15 +396,241 @@ class ProjectScheduleWindow:
     """
 
     def __init__(self):
-        self.window = tkinter.Tk()
-        self.window.wm_title("Project Selection Window")
+        self.main_window = tkinter.Tk()
+        self.main_window.wm_title("Project Schedule Hub")
 
-        tkinter.Label(self.window, width=50,
-                      text="Project Selection Window").grid(
-            pady=20, column=1, row=1
+        # Initialize project variables.
+        self.proj_id = None
+        self.cus_id = None
+        self.emp_id = None
+        self.proj_date = None
+        self.proj_descrpt = None
+        self.proj_estdatest = None
+        self.proj_estdateend = None
+        self.proj_estbudget = None
+        self.proj_actdatest = None
+        self.proj_actdateend = None
+        self.proj_actcost = None
+
+        tkinter.Label(self.main_window, width=50,
+                      text="Please enter project information below.").grid(
+            pady=10, column=1, row=0
         )
 
-        self.window.mainloop()
+        # Options for project selection.
+        tkinter.Label(self.main_window, text="Customer Name").grid(
+            pady=10, column=1, row=4
+        )
+        self.customer_name = tkinter.Entry(self.main_window)
+        self.customer_name.grid(
+            pady=10, column=2, row=4
+        )
+
+        tkinter.Label(self.main_window, text="Project Date").grid(
+            pady=10, column=1, row=6
+        )
+        self.proj_date = tkinter.Entry(self.main_window)
+        self.proj_date.grid(
+            pady=10, column=2, row=6
+        )
+
+        tkinter.Label(self.main_window, text="Project Description").grid(
+            pady=10, column=1, row=7
+        )
+        self.proj_descrpt = tkinter.Entry(self.main_window)
+        self.proj_descrpt.grid(
+            pady=10, column=2, row=7
+        )
+
+        tkinter.Label(self.main_window, text="Estimated Start Date").grid(
+            pady=10, column=1, row=8
+        )
+        self.proj_estdatest = tkinter.Entry(self.main_window)
+        self.proj_estdatest.grid(
+            pady=10, column=2, row=8
+        )
+
+        tkinter.Label(self.main_window, text="Estimated End Date").grid(
+            pady=10, column=1, row=9
+        )
+        self.proj_estdateend = tkinter.Entry(self.main_window)
+        self.proj_estdateend.grid(
+            pady=10, column=2, row=9
+        )
+
+        tkinter.Label(self.main_window, text="Estimated Budget").grid(
+            pady=10, column=1, row=10
+        )
+        self.proj_estbudget = tkinter.Entry(self.main_window)
+        self.proj_estbudget.grid(
+            pady=10, column=2, row=10
+        )
+
+        tkinter.Label(self.main_window, text="Actual Start Date").grid(
+            pady=10, column=1, row=11
+        )
+        self.proj_actdatest = tkinter.Entry(self.main_window)
+        self.proj_actdatest.grid(
+            pady=10, column=2, row=11
+        )
+
+        tkinter.Label(self.main_window, text="Actual End Date").grid(
+            pady=10, column=1, row=12
+        )
+        self.proj_actdateend = tkinter.Entry(self.main_window)
+        self.proj_actdateend.grid(
+            pady=10, column=2, row=12
+        )
+
+        tkinter.Label(self.main_window, text="Actual Cost").grid(
+            pady=10, column=1, row=13
+        )
+        self.proj_actcost = tkinter.Entry(self.main_window)
+        self.proj_actcost.grid(
+            pady=10, column=2, row=13
+        )
+
+        # Submit button.
+        tkinter.Button(self.main_window, text="Submit",
+                       command=self.submit_data).grid(
+            pady=10, column=1, row=14
+        )
+
+        tkinter.Button(self.main_window, text="Quit",
+                       command=self.quit).grid(
+            pady=10, column=2, row=14
+        )
+
+        self.main_window.mainloop()
+
+    def submit_data(self):
+        """
+        This function submits user submitted entries about the project of
+        interest to the database.
+
+        :return: TBD.
+        """
+
+        database = Database()
+        project_data = []
+
+        project_entries = ["",
+                           "",
+                           "",
+                           self.proj_date.get(),
+                           self.proj_descrpt.get(),
+                           self.proj_estdatest.get(),
+                           self.proj_estdateend.get(),
+                           self.proj_estbudget.get(),
+                           self.proj_actdatest.get(),
+                           self.proj_actdateend.get(),
+                           self.proj_actcost.get()]
+
+        index = 0
+        num_filled = 0
+        for item in project_entries:
+            if item == "":
+                project_entries[index] = None
+            else:
+                num_filled += 1
+            index += 1
+
+        cus_name = self.customer_name.get()
+
+        if num_filled == 0 and cus_name == "":
+            ErrorMessageWindow("You have to fill in at least one argument!")
+        else:
+            # If a customer name is provided.
+            if cus_name != "":
+                customer_data = database.query_customer(cus_name=cus_name)
+                if customer_data:
+                    project_entries[1] = customer_data[0][0]
+                    project_data = database.query_project(
+                        project_query_options=project_entries)
+                else:
+                    ErrorMessageWindow("No customer with this name found.")
+            else:
+                project_data = database.query_project(
+                    project_query_options=project_entries)
+
+            if project_data:
+                schedule_data = database.query_project_tasks(
+                    project_data=project_data)
+                customer_data = database.query_customer(project_data[0][1])
+                region_data = database.query_region_id(customer_data[0][1])
+
+                # Project schedule window definition.
+                ps_window = tkinter.Tk()
+                ps_window.wm_title("Project Schedule Display")
+                tkinter.Label(
+                    ps_window, text="Project Information:"
+                ).grid()
+
+                # Display project information.
+                tkinter.Label(
+                    ps_window,
+                    text="Project ID: {}".format(project_data[0][0]),
+                    width=40
+                ).grid(
+                    pady=5, column=0, row=1
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Description: {}".format(project_data[0][4]),
+                    width=40
+                ).grid(
+                    pady=5, column=1, row=1
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Company: {}".format(customer_data[0][2]),
+                    width=40
+                ).grid(
+                    pady=5, column=0, row=2
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Contract Date: {}".format(project_data[0][3]),
+                    width=40
+                ).grid(
+                    pady=5, column=1, row=2
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Region: {}".format(region_data[0][1]),
+                    width=40
+                ).grid(
+                    pady=5, column=2, row=2
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Start Date: {}".format(project_data[0][5]),
+                    width=40
+                ).grid(
+                    pady=5, column=0, row=3
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="End Date: {}".format(project_data[0][6]),
+                    width=40
+                ).grid(
+                    pady=5, column=1, row=3
+                )
+                tkinter.Label(
+                    ps_window,
+                    text="Budget: ${}".format(project_data[0][7]),
+                    width=40
+                ).grid(
+                    pady=5, column=2, row=3
+                )
+            else:
+                ErrorMessageWindow("No project found with given info.")
+
+    def quit(self):
+        self.main_window.destroy()
+
+
+# -----------------------------------------------------------------------------
 
 
 class UpdateWindow:
