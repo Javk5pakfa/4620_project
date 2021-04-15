@@ -25,7 +25,7 @@ class Database:
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 print("Database does not exist")
             else:
-                print(err)
+                ErrorMessageWindow(err)
         self.dbCursor = self.dbConnection.cursor()
 
     def __del__(self):
@@ -48,7 +48,7 @@ class Database:
             if err.errno == errorcode.ER_NO_SUCH_TABLE:
                 print("Table doesn't exist.")
             else:
-                print(err)
+                ErrorMessageWindow(err)
 
         result = self.dbCursor.fetchall()
         return result
@@ -79,7 +79,7 @@ class Database:
                                       emp_id)
                 results = self.dbCursor.fetchall()
             except mysql.connector.Error as err:
-                print(err)
+                ErrorMessageWindow(err)
         else:
             query = "select * from employee where "
             if region is not None:
@@ -105,7 +105,7 @@ class Database:
                 self.dbCursor.execute(query)
                 results = self.dbCursor.fetchall()
             except mysql.connector.Error as err:
-                print(err)
+                ErrorMessageWindow(err)
 
         if results is None:
             print("Error while querying table.")
@@ -173,7 +173,7 @@ class Database:
             self.dbCursor.execute(query)
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
-            print(err)
+            ErrorMessageWindow(err)
 
     def query_project_tasks(self, project_data):
         """
@@ -201,7 +201,7 @@ class Database:
             self.dbCursor.execute(query)
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
-            print(err)
+            ErrorMessageWindow(err)
 
     def query_assignment(self, project_data):
         """
@@ -228,7 +228,7 @@ class Database:
             self.dbCursor.execute(query)
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
-            print(err)
+            ErrorMessageWindow(err)
 
     def query_employee_skill(self):
         """
@@ -247,7 +247,7 @@ class Database:
             self.dbCursor.execute(query)
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
-            print(err)
+            ErrorMessageWindow(err)
 
     def query_worklog(self):
         """
@@ -262,7 +262,39 @@ class Database:
             self.dbCursor.execute(query)
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
-            print(err)
+            ErrorMessageWindow(err)
+
+    def query_customer_cusid(self, cus_id):
+        """
+        This method returns customer info based on customer id.
+
+        :param cus_id: Customer ID.
+        :return: A list of tuples containing customer information.
+        """
+
+        query = "select * from customer where cus_id = {}".format(cus_id)
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            ErrorMessageWindow(err)
+
+    def query_region_id(self, region_id):
+        """
+        This method returns region table with region id provided.
+
+        :param region_id: Region id to query.
+        :return: A list of tuples containing region info.
+        """
+
+        query = "select * from region where region_id={}".format(region_id)
+
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            ErrorMessageWindow(err)
 
 
 # -----------------------------------------------------------------------------
