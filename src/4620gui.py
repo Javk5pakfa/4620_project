@@ -353,8 +353,9 @@ class ReportWindow:
             pady=20, column=1, row=1
         )
 
-        self.project_schedule_window = ProjectScheduleWindow
         self.employee_skill_window = EmpSkillWindow
+        self.project_schedule_window = ProjectScheduleWindow
+        self.assignment_window = AssignmentWindow
 
         tkinter.Button(
             self.window, width=25, text="Employee-Skill Inventory",
@@ -369,7 +370,8 @@ class ReportWindow:
             pady=10, column=1, row=3
         )
         tkinter.Button(
-            self.window, width=25, text="Assignment Form"
+            self.window, width=25, text="Assignment Form",
+            command=self.assignment_window
         ).grid(
             pady=10, column=1, row=4
         )
@@ -428,9 +430,6 @@ class ProjectScheduleWindow:
         self.main_window.wm_title("Project Schedule Hub")
 
         # Initialize project variables.
-        self.proj_id = None
-        self.cus_id = None
-        self.emp_id = None
         self.proj_date = None
         self.proj_descrpt = None
         self.proj_estdatest = None
@@ -441,7 +440,7 @@ class ProjectScheduleWindow:
         self.proj_actcost = None
 
         tkinter.Label(self.main_window, width=50,
-                      text="Please enter project information below.").grid(
+                      text="Please enter project information below:").grid(
             pady=10, column=1, row=0
         )
 
@@ -671,6 +670,312 @@ class ProjectScheduleWindow:
 
 # -----------------------------------------------------------------------------
 
+
+class AssignmentWindow:
+    """
+    This class represents the assignment window.
+    """
+
+    def __init__(self):
+        self.database = Database()
+        self.main_window = tkinter.Tk()
+        self.main_window.wm_title("Assignment Hub")
+
+        # Initialize project variables.
+        self.project_entries = []
+        self.proj_date = ""
+        self.proj_descrpt = ""
+        self.proj_estdatest = ""
+        self.proj_estdateend = ""
+        self.proj_estbudget = ""
+        self.proj_actdatest = ""
+        self.proj_actdateend = ""
+        self.proj_actcost = ""
+
+        # Initialize employee variables.
+        self.employee_entries = []
+        self.emp_lname = ""
+        self.emp_mi = ""
+        self.emp_fname = ""
+        self.emp_hiredate = ""
+
+        tkinter.Label(self.main_window, width=50,
+                      text="Please enter project information below:").grid(
+            pady=10, column=1, row=0
+        )
+
+        # Options for project selection.
+        tkinter.Label(self.main_window, text="Customer Name").grid(
+            pady=10, column=1, row=4
+        )
+        self.customer_name = tkinter.Entry(self.main_window)
+        self.customer_name.grid(
+            pady=10, padx=5, column=2, row=4
+        )
+
+        tkinter.Label(self.main_window, text="Project Date").grid(
+            pady=10, column=1, row=6
+        )
+        self.proj_date = tkinter.Entry(self.main_window)
+        self.proj_date.grid(
+            pady=10, padx=5, column=2, row=6
+        )
+
+        tkinter.Label(self.main_window, text="Project Description").grid(
+            pady=10, column=1, row=7
+        )
+        self.proj_descrpt = tkinter.Entry(self.main_window)
+        self.proj_descrpt.grid(
+            pady=10, padx=5, column=2, row=7
+        )
+
+        tkinter.Label(self.main_window, text="Estimated Start Date").grid(
+            pady=10, column=1, row=8
+        )
+        self.proj_estdatest = tkinter.Entry(self.main_window)
+        self.proj_estdatest.grid(
+            pady=10, padx=5, column=2, row=8
+        )
+
+        tkinter.Label(self.main_window, text="Estimated End Date").grid(
+            pady=10, column=1, row=9
+        )
+        self.proj_estdateend = tkinter.Entry(self.main_window)
+        self.proj_estdateend.grid(
+            pady=10, padx=5, column=2, row=9
+        )
+
+        tkinter.Label(self.main_window, text="Estimated Budget").grid(
+            pady=10, column=1, row=10
+        )
+        self.proj_estbudget = tkinter.Entry(self.main_window)
+        self.proj_estbudget.grid(
+            pady=10, padx=5, column=2, row=10
+        )
+
+        tkinter.Label(self.main_window, text="Actual Start Date").grid(
+            pady=10, column=1, row=11
+        )
+        self.proj_actdatest = tkinter.Entry(self.main_window)
+        self.proj_actdatest.grid(
+            pady=10, padx=5, column=2, row=11
+        )
+
+        tkinter.Label(self.main_window, text="Actual End Date").grid(
+            pady=10, column=1, row=12
+        )
+        self.proj_actdateend = tkinter.Entry(self.main_window)
+        self.proj_actdateend.grid(
+            pady=10, padx=5, column=2, row=12
+        )
+
+        tkinter.Label(self.main_window, text="Actual Cost").grid(
+            pady=10, column=1, row=13
+        )
+        self.proj_actcost = tkinter.Entry(self.main_window)
+        self.proj_actcost.grid(
+            pady=10, padx=5, column=2, row=13
+        )
+
+        # Options for employee information.
+
+        tkinter.Label(self.main_window,
+                      text="Or, enter a specific employee below:").grid(
+            pady=10, column=1, row=14
+        )
+
+        tkinter.Label(self.main_window, text="Employee Last Name").grid(
+            pady=10, column=1, row=15
+        )
+        self.emp_lname = tkinter.Entry(self.main_window)
+        self.emp_lname.grid(
+            pady=10, padx=5, column=2, row=15
+        )
+
+        tkinter.Label(self.main_window, text="Employee Middle Initial").grid(
+            pady=10, column=1, row=16
+        )
+        self.emp_mi = tkinter.Entry(self.main_window)
+        self.emp_mi.grid(
+            pady=10, padx=5, column=2, row=16
+        )
+
+        tkinter.Label(self.main_window, text="Employee First Name").grid(
+            pady=10, column=1, row=17
+        )
+        self.emp_fname = tkinter.Entry(self.main_window)
+        self.emp_fname.grid(
+            pady=10, padx=5, column=2, row=17
+        )
+
+        tkinter.Label(self.main_window, text="Employee Hire Date").grid(
+            pady=10, column=1, row=18
+        )
+        self.emp_hiredate = tkinter.Entry(self.main_window)
+        self.emp_hiredate.grid(
+            pady=10, padx=5, column=2, row=18
+        )
+
+        # Submit and Quit Button.
+        tkinter.Button(self.main_window, text="Submit",
+                       command=self.submit_action).grid(
+            pady=10, column=1, row=19
+        )
+        tkinter.Button(self.main_window, text="Quit",
+                       command=self.quit).grid(
+            pady=10, column=2, row=19
+        )
+
+    @staticmethod
+    def check_input_empty(user_inputs):
+        """
+        This method checks whether if the data input by user is
+        empty. It also sets empty fields to None.
+
+        :param user_inputs: User input data collection. A list of strings.
+        :return: A is_empty boolean and the modified user input collection.
+        """
+
+        is_empty = True
+        index = 0
+        for item in user_inputs:
+            if item == "":
+                user_inputs[index] = None
+            else:
+                is_empty = False
+            index += 1
+
+        return is_empty, user_inputs
+
+    def gather_project_entries(self):
+        """
+        Collects project inputs from user.
+
+        :return: A boolean whether if the collection is empty or not,
+        The modified user input collection.
+        """
+
+        user_inputs = [
+            self.customer_name.get(), self.proj_date.get(),
+            self.proj_descrpt.get(), self.proj_estdatest.get(),
+            self.proj_estdateend.get(), self.proj_estbudget.get(),
+            self.proj_actdatest.get(), self.proj_actdateend.get(),
+            self.proj_actcost.get()
+        ]
+
+        return self.check_input_empty(user_inputs)
+
+    def gather_employee_entries(self):
+        """
+        Collects employee inputs from user.
+
+        :return: A boolean whether if the collection is empty or not,
+        The modified user input collection.
+        """
+        user_inputs = [
+            self.emp_lname.get(), self.emp_mi.get(), self.emp_fname.get(),
+            self.emp_hiredate.get()
+        ]
+
+        return self.check_input_empty(user_inputs)
+
+    def submit_action(self):
+        project_is_empty, project_inputs = self.gather_project_entries()
+        employee_is_empty, employee_inputs = self.gather_employee_entries()
+
+        if project_is_empty is True and employee_is_empty is True:
+            ErrorMessageWindow("You must enter data into at least one field.")
+        elif project_is_empty is True and employee_is_empty is False:
+            ErrorMessageWindow("You must specify a project for this employee.")
+        else:
+            # Initialize project data for query.
+            project_query_data = []
+            sentinel = 0
+            for i in range(3):
+                project_query_data.append(None)
+            for item in project_inputs:
+                if sentinel > 0:
+                    project_query_data.append(item)
+                sentinel += 1
+
+            if self.customer_name.get() != "":
+                project_query_data[1] = self.database.query_customer(
+                    cus_name=self.customer_name.get()
+                )[0][0]
+
+            # Initialize employee data for query.
+            employee_query_data = []
+            for i in range(2):
+                employee_query_data.append(None)
+            for item in employee_inputs:
+                employee_query_data.append(item)
+
+            project_data, employee_data = None, None
+
+            if project_is_empty is False:
+                project_data = self.database.query_project(project_query_data)
+                if project_data:
+                    if employee_is_empty is False:
+                        employee_data = self.database.query_employee(employee_query_data)
+
+                    self.show_project_assignment(project_data, employee_data)
+                else:
+                    ErrorMessageWindow("Project not found.")
+
+    def show_project_assignment(self, project_data, employee_data):
+        pa_table = tkinter.Tk()
+        pa_table.wm_title("Project Assignment Result Window")
+
+        customer_data = self.database.query_customer(project_data[0][1])
+
+        tkinter.Label(
+            pa_table, text="Project Information:"
+        ).grid()
+
+        # Display project information.
+        tkinter.Label(
+            pa_table,
+            text="Project ID: {}".format(project_data[0][0]),
+        ).grid(
+            pady=5, column=0, row=1
+        )
+        tkinter.Label(
+            pa_table,
+            text="Description: {}".format(project_data[0][4]),
+        ).grid(
+            pady=5, column=1, row=1
+        )
+        tkinter.Label(
+            pa_table,
+            text="Company: {}".format(customer_data[0][2]),
+        ).grid(
+            pady=5, column=0, row=2
+        )
+        tkinter.Label(
+            pa_table,
+            text="Contract Date: {}".format(project_data[0][3]),
+        ).grid(
+            pady=5, column=1, row=2
+        )
+        tkinter.Label(
+            pa_table,
+            text="As of: ${}".format(project_data[0][7]),
+        ).grid(
+            pady=5, column=0, row=3
+        )
+
+
+
+    def quit(self):
+        """
+        This method closes the assignment submission window.
+        :return: Nothing.
+        """
+
+        self.main_window.destroy()
+
+
+# -----------------------------------------------------------------------------
 
 class UpdateWindow:
 
