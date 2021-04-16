@@ -187,26 +187,54 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    def query_assignment(self, project_data):
+    def query_assignment(self, project_id=None, emp_id=None):
         """
         This method produces data for the assignment window.
 
-        :param project_data: Data of project of interest.
+        :param emp_id: Employee ID of interest
+        :param project_id: Project ID of interest.
         :return: Assignment data in a list of tuples.
         """
 
-        project_id = project_data[0][0]
-        query = "select task_datest, task_dateend, task_info, " \
-                "skill_descrpt, asn_id, emp_lname, emp_fname, " \
-                "asn_dateest, asn_dateend " \
-                "from assign, employee, task, skill, task_skills " \
-                "where task_skills.task_id = task.task_id " \
-                "and proj_id = '{}' " \
-                "and task_skills.skill_id = skill.skill_id " \
-                "and assign.emp_id = employee.emp_id " \
-                "and assign.ts_id = task_skills.ts_id " \
-                "GROUP BY asn_id " \
-                "ORDER BY task_datest".format(project_id)
+        query = ""
+
+        if project_id is not None and emp_id is not None:
+            query = "select task_datest, task_dateend, task_info, " \
+                    "skill_descrpt, asn_id, emp_lname, emp_fname, " \
+                    "asn_dateest, asn_dateend " \
+                    "from assign, employee, task, skill, task_skills " \
+                    "where task_skills.task_id = task.task_id " \
+                    "and proj_id = '{}' " \
+                    "and employee.emp_id = '{}' " \
+                    "and task_skills.skill_id = skill.skill_id " \
+                    "and assign.emp_id = employee.emp_id " \
+                    "and assign.ts_id = task_skills.ts_id " \
+                    "GROUP BY asn_id " \
+                    "ORDER BY task_datest".format(project_id, emp_id)
+        elif project_id is None and emp_id is not None:
+            query = "select task_datest, task_dateend, task_info, " \
+                    "skill_descrpt, asn_id, emp_lname, emp_fname, " \
+                    "asn_dateest, asn_dateend " \
+                    "from assign, employee, task, skill, task_skills " \
+                    "where task_skills.task_id = task.task_id " \
+                    "and employee.emp_id = '{}' " \
+                    "and task_skills.skill_id = skill.skill_id " \
+                    "and assign.emp_id = employee.emp_id " \
+                    "and assign.ts_id = task_skills.ts_id " \
+                    "GROUP BY asn_id " \
+                    "ORDER BY task_datest".format(emp_id)
+        elif project_id is not None and emp_id is None:
+            query = "select task_datest, task_dateend, task_info, " \
+                    "skill_descrpt, asn_id, emp_lname, emp_fname, " \
+                    "asn_dateest, asn_dateend " \
+                    "from assign, employee, task, skill, task_skills " \
+                    "where task_skills.task_id = task.task_id " \
+                    "and proj_id = '{}' " \
+                    "and task_skills.skill_id = skill.skill_id " \
+                    "and assign.emp_id = employee.emp_id " \
+                    "and assign.ts_id = task_skills.ts_id " \
+                    "GROUP BY asn_id " \
+                    "ORDER BY task_datest".format(project_id)
 
         try:
             self.dbCursor.execute(query)
