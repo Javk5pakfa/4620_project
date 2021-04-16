@@ -1034,21 +1034,16 @@ class HomePage:
             pady=10, column=1, row=2
         )
         tkinter.Button(
-            self.homePageWindow, width=25, text="Search"
-        ).grid(
-            pady=10, column=1, row=3
-        )
-        tkinter.Button(
             self.homePageWindow, width=25, text="Update",
             command=self.update_window
         ).grid(
-            pady=10, column=1, row=4
+            pady=10, column=1, row=3
         )
         tkinter.Button(
             self.homePageWindow, width=25, text="Quit",
             command=self.homePageWindow.destroy
         ).grid(
-            pady=10, column=1, row=5
+            pady=10, column=1, row=4
         )
 
         self.homePageWindow.mainloop()
