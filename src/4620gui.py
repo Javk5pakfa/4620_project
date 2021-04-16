@@ -236,10 +236,12 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    def query_worklog(self):
+    # TODO: Expand this method to incorporate employee search.
+    def query_worklog(self, emp_id=None):
         """
         This method returns the work-log table.
 
+        :param emp_id: A specific employee to look up for.
         :return: A list of tuples representing work-log table.
         """
 
@@ -251,6 +253,7 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
+    # TODO: Probably needs rework/expansion.
     def query_customer(self,
                        cus_id=None,
                        cus_name=None,
@@ -312,6 +315,22 @@ class Database:
             return self.dbCursor.fetchall()
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
+
+    # TODO
+    def insert_skill(self):
+        pass
+
+    # TODO
+    def insert_employee(self):
+        pass
+
+    # TODO
+    def create_new_project(self):
+        pass
+
+    # TODO
+    def create_assignments(self):
+        pass
 
 
 # -----------------------------------------------------------------------------
