@@ -53,65 +53,43 @@ class Database:
         result = self.dbCursor.fetchall()
         return result
 
-    def query_employee(self,
-                       emp_id=None, region=None,
-                       fname=None, lname=None, hire_date=None):
+    def query_employee(self, employee_inputs):
         """
-        This method queries the database about specific employees based on
-        information provided.
+        This method queries the employee table with the given info.
 
-        Precondition: number of options provided > 0
-        emp_id is int, hire_date is date, others are strings.
-
-        :param emp_id: Employee ID. Default none.
-        :param region: Region name. Default none.
-        :param fname: First name. Default none.
-        :param lname: Last name. Default none.
-        :param hire_date: Hire date. Default none.
-        :return: a list of tuples containing target employee(s).
+        :param employee_inputs: Collection of inputs about employee.
+        :return: A collection of rows from database about said employee.
         """
 
-        results = None
+        query = "select * from employee where "
+        row_names = [
+            "emp_ID", "Region_ID", "Emp_Lname", "Emp_Mi", "Emp_Fname",
+            "Emp_Hiredate"
+        ]
+        filled_attributes = []
 
-        if emp_id is not None:
-            try:
-                self.dbCursor.execute("select * from employee where Emp_ID={}",
-                                      emp_id)
-                results = self.dbCursor.fetchall()
-            except mysql.connector.Error as err:
-                ErrorMessageWindow(err)
-        else:
-            query = "select * from employee where "
-            if region is not None:
-                query = query + "region.Region_ID=employee.Region_ID " \
-                                "and Region_Name='{}' ".format(region)
-            if fname is not None:
-                if region is None:
-                    query = query + "Emp_Fname='{}' ".format(fname)
-                else:
-                    query = query + "and Emp_Fname='{}' ".format(fname)
-            if lname is not None:
-                if region is None and fname is None:
-                    query = query + "Emp_Lname='{}' ".format(lname)
-                else:
-                    query = query + "and Emp_Lname='{}' ".format(lname)
-            if hire_date is not None:
-                if region is None and fname is None and lname is None:
-                    query = query + "Emp_Hiredate='{}' ".format(hire_date)
-                else:
-                    query = query + "and Emp_Hiredate='{}' ".format(hire_date)
+        row_index = 0
+        row_options = []
+        for item in employee_inputs:
+            if item is not None:
+                row_options.append(row_index)
+                filled_attributes.append(item)
+            row_index += 1
 
-            try:
-                self.dbCursor.execute(query)
-                results = self.dbCursor.fetchall()
-            except mysql.connector.Error as err:
-                ErrorMessageWindow(err)
+        j = 0
+        for i in row_options:
+            if j == 0:
+                query += "{}='{}' ".format(row_names[i], filled_attributes[j])
+            else:
+                query += "and {}='{}' ".format(row_names[i],
+                                               filled_attributes[j])
+            j += 1
 
-        if results is None:
-            print("Error while querying table.")
-            quit()
-        else:
-            return results
+        try:
+            self.dbCursor.execute(query)
+            return self.dbCursor.fetchall()
+        except mysql.connector.Error as err:
+            ErrorMessageWindow(err)
 
     def query_project(self, project_query_options):
         """
@@ -201,7 +179,7 @@ class Database:
         if project_id is not None and emp_id is not None:
             query = "select task_datest, task_dateend, task_info, " \
                     "skill_descrpt, asn_id, emp_lname, emp_fname, " \
-                    "asn_dateest, asn_dateend " \
+                    "asn_datest, asn_dateend " \
                     "from assign, employee, task, skill, task_skills " \
                     "where task_skills.task_id = task.task_id " \
                     "and proj_id = '{}' " \
@@ -209,31 +187,28 @@ class Database:
                     "and task_skills.skill_id = skill.skill_id " \
                     "and assign.emp_id = employee.emp_id " \
                     "and assign.ts_id = task_skills.ts_id " \
-                    "GROUP BY asn_id " \
                     "ORDER BY task_datest".format(project_id, emp_id)
         elif project_id is None and emp_id is not None:
             query = "select task_datest, task_dateend, task_info, " \
                     "skill_descrpt, asn_id, emp_lname, emp_fname, " \
-                    "asn_dateest, asn_dateend " \
+                    "asn_datest, asn_dateend " \
                     "from assign, employee, task, skill, task_skills " \
                     "where task_skills.task_id = task.task_id " \
                     "and employee.emp_id = '{}' " \
                     "and task_skills.skill_id = skill.skill_id " \
                     "and assign.emp_id = employee.emp_id " \
                     "and assign.ts_id = task_skills.ts_id " \
-                    "GROUP BY asn_id " \
                     "ORDER BY task_datest".format(emp_id)
         elif project_id is not None and emp_id is None:
             query = "select task_datest, task_dateend, task_info, " \
                     "skill_descrpt, asn_id, emp_lname, emp_fname, " \
-                    "asn_dateest, asn_dateend " \
+                    "asn_datest, asn_dateend " \
                     "from assign, employee, task, skill, task_skills " \
                     "where task_skills.task_id = task.task_id " \
                     "and proj_id = '{}' " \
                     "and task_skills.skill_id = skill.skill_id " \
                     "and assign.emp_id = employee.emp_id " \
                     "and assign.ts_id = task_skills.ts_id " \
-                    "GROUP BY asn_id " \
                     "ORDER BY task_datest".format(project_id)
 
         try:
@@ -299,14 +274,17 @@ class Database:
             if index == 0:
                 if item is not None:
                     if num_args == 0:
-                        query = query + "{}='{}' ".format(row_names[index], item)
+                        query = query + "{}='{}' ".format(row_names[index],
+                                                          item)
                     else:
-                        query = query + "and {}='{}' ".format(row_names[index], item)
+                        query = query + "and {}='{}' ".format(row_names[index],
+                                                              item)
                     num_args += 1
             else:
                 if item is not None:
                     if num_args == 0:
-                        query = query + "{}='{}' ".format(row_names[index], item)
+                        query = query + "{}='{}' ".format(row_names[index],
+                                                          item)
                     else:
                         query = query + "and {}='{}' ".format(row_names[index],
                                                               item)
@@ -916,7 +894,8 @@ class AssignmentWindow:
                 project_data = self.database.query_project(project_query_data)
                 if project_data:
                     if employee_is_empty is False:
-                        employee_data = self.database.query_employee(employee_query_data)
+                        employee_data = self.database.query_employee(
+                            employee_query_data)
 
                     self.show_project_assignment(project_data, employee_data)
                 else:
@@ -927,6 +906,13 @@ class AssignmentWindow:
         pa_table.wm_title("Project Assignment Result Window")
 
         customer_data = self.database.query_customer(project_data[0][1])
+        proj_id = project_data[0][0]
+        if employee_data is not None:
+            emp_id = employee_data[0][0]
+            assignment_data = self.database.query_assignment(project_id=proj_id,
+                                                             emp_id=emp_id)
+        else:
+            assignment_data = self.database.query_assignment(project_id=proj_id)
 
         tkinter.Label(
             pa_table, text="Project Information:"
@@ -935,36 +921,44 @@ class AssignmentWindow:
         # Display project information.
         tkinter.Label(
             pa_table,
-            text="Project ID: {}".format(project_data[0][0]),
+            text="Project ID: {} {} Description: {}".format(
+                project_data[0][0],
+                "                ",
+                project_data[0][4]
+            ),
         ).grid(
             pady=5, column=0, row=1
         )
         tkinter.Label(
             pa_table,
-            text="Description: {}".format(project_data[0][4]),
-        ).grid(
-            pady=5, column=1, row=1
-        )
-        tkinter.Label(
-            pa_table,
-            text="Company: {}".format(customer_data[0][2]),
+            text="Company: {} {} Contract Date: {}".format(
+                customer_data[0][2],
+                "                ",
+                project_data[0][3]
+            ),
         ).grid(
             pady=5, column=0, row=2
         )
-        tkinter.Label(
-            pa_table,
-            text="Contract Date: {}".format(project_data[0][3]),
-        ).grid(
-            pady=5, column=1, row=2
-        )
-        tkinter.Label(
-            pa_table,
-            text="As of: ${}".format(project_data[0][7]),
-        ).grid(
-            pady=5, column=0, row=3
+
+        # Assignment table definition.
+        assignment_table = tkinter.ttk.Treeview(pa_table)
+        assignment_table.grid(pady=5, column=0, row=4)
+
+        assignment_table["show"] = "headings"
+        assignment_table["columns"] = (
+            "Task Starts", "Task Ends", "Task Info", "Skill Info",
+            "Assignment ID", "Last Name", "First Name", "Assignment Starts",
+            "Assignment Ends"
         )
 
+        # Table headings.
+        for heading in assignment_table["columns"]:
+            assignment_table.heading(heading, text=heading)
+            assignment_table.column(heading, width=150)
 
+        # Load data into table.
+        for item in assignment_data:
+            assignment_table.insert('', 'end', values=item)
 
     def quit(self):
         """
