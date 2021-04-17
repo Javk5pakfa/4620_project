@@ -1117,6 +1117,43 @@ class ErrorMessageWindow:
         ).pack()
 
 
+class MultiRowScreen:
+    """
+    This class returns a screen displaying a multi-row fetchall result
+    for reference.
+    """
+
+    def __init__(self, incoming_data, data_type_name):
+        self.data_type_name = data_type_name
+        self.data = incoming_data
+        self.main_window = tkinter.Tk()
+        self.main_window.wm_title("Data Display")
+
+        # Get how many columns exist in this data collection.
+        num_columns = len(self.data[0])
+
+        self.main_label = tkinter.Label(
+            self.main_window,
+            text="Your operation returned multiple rows for {}. "
+                 "Please enter information again of {} of "
+                 "your choice.".format(self.data_type_name,
+                                       self.data_type_name))
+        self.main_label.grid(pady=5, column=0, row=0)
+
+        # Table definition.
+        self.table = tkinter.ttk.Treeview(self.main_window)
+        self.table.grid(pady=5, column=0, row=1)
+
+        for i in range(num_columns):
+            self.table.heading(i, text="'{}'".format(i))
+            self.table.column(i)
+
+        for item in self.data:
+            self.table.insert('', 'end', values=item)
+
+        self.main_window.mainloop()
+
+
 class HomePage:
     """
     This class represents the home screen of the database GUI. WIP.
