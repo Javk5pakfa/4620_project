@@ -1,4 +1,3 @@
-# import sys
 import datetime
 import mysql.connector
 from mysql.connector import errorcode
@@ -300,15 +299,15 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    def query_region_id(self, region_id):
+    def query_region(self, region_name):
         """
         This method returns region table with region id provided.
 
-        :param region_id: Region id to query.
+        :param region_name: Region name to query.
         :return: A list of tuples containing region info.
         """
 
-        query = "select * from region where region_id='{}'".format(region_id)
+        query = "select * from region where region_name='{}'".format(region_name)
 
         try:
             self.dbCursor.execute(query)
@@ -326,9 +325,10 @@ class Database:
         """
 
         if self.check_input_type(skill_rate, "float"):
+            skill_rate = float(skill_rate)
             if skill_rate >= 0.0:
                 query = "insert into skill(skill_descrpt, skill_rate) " \
-                        "values ('{}', '{}')".format(skill_info, skill_rate)
+                        "value ('{}', '{}')".format(skill_info, skill_rate)
 
                 try:
                     self.dbCursor.execute(query)
@@ -347,7 +347,7 @@ class Database:
                         last_name,
                         first_name,
                         hire_date,
-                        mi):
+                        mi=None):
         """
         This method inserts a new employee given the information.
 
@@ -361,15 +361,98 @@ class Database:
 
         if self.check_input_type(region_name, "Region"):
             if self.check_input_type(hire_date, "Date"):
+                region_info = self.query_region(region_name)
+                region_id = region_info[0][0]
+
+                print(region_info)
+                print(region_id)
+
                 if mi != "":
-                    query = "insert into employee(Region_ID, " \
+                    query_format = "insert into employee(Region_ID, " \
                             "Emp_Lname, Emp_Mi, Emp_Fname, Emp_Hiredate) " \
                             "values ((select region_id from region where " \
-                            "region_name='{}'), '{}', '{}', '{}', '{}')"
-                    query.format(
-                        region_name, last_name, mi, first_name, hire_date
+                            "region_id='{}'), '{}', '{}', '{}', '{}')"
+                    query = query_format.format(
+                        region_id, last_name, mi, first_name, hire_date
+                    )
+                else:
+                    query_format = "insert into employee(Region_ID, " \
+                            "Emp_Lname, Emp_Fname, Emp_Hiredate) " \
+                            "values ((select region_id from region where " \
+                            "region_id='{}'), '{}', '{}', '{}')"
+                    query = query_format.format(
+                        region_id, last_name, first_name, hire_date
                     )
 
+                try:
+                    self.dbCursor.execute(query)
+                    SuccessMessageWindow("Insert success!")
+                except mysql.connector.Error as err:
+                    ErrorMessageWindow(err)
+                finally:
+                    self.dbConnection.commit()
+            else:
+                ErrorMessageWindow("Date format not valid!")
+        else:
+            ErrorMessageWindow("Region input not valid!")
+
+    def create_new_project(self,
+                           customer_name,
+                           employee_name,
+                           contract_date,
+                           project_info,
+                           project_datest,
+                           project_dateend,
+                           project_budget,
+                           project_actst=None,
+                           project_actend=None,
+                           project_cost=None):
+        """
+        This method creates a new project with given information.
+
+        :param customer_name: Self-explanatory.
+        :param employee_name: (Last Name, First Name)
+        :param contract_date: Self-explanatory.
+        :param project_info: Self-explanatory.
+        :param project_datest: Self-explanatory.
+        :param project_dateend: Self-explanatory.
+        :param project_budget: Self-explanatory.
+        :param project_actst: Self-explanatory.
+        :param project_actend: Self-explanatory.
+        :param project_cost: Self-explanatory.
+        :return: Success message if success || Error if insert error.
+        """
+
+        customer_info = self.query_customer(cus_name=customer_name)
+        employee_inputs = [None, None,
+                           employee_name[0], None, employee_name[1], None]
+        employee_info = self.query_employee(employee_inputs)
+
+        if customer_info and employee_info:
+            if len(customer_info) > 1:
+                MultiRowScreen(customer_info, "project")
+            else:
+                cus_id = customer_info[0][0]
+                emp_id = employee_info[0][0]
+                optional_inputs = [project_actst, project_actend, project_cost]
+
+                query = "insert into project(cus_id, emp_id, proj_date, " \
+                        "proj_descrpt, proj_estdatest, proj_estdateend, " \
+                        "proj_estbudget) values ('{}', '{}', '{}', '{}', " \
+                        "'{}', '{}', '{}') ".format(cus_id,
+                                                    emp_id,
+                                                    contract_date,
+                                                    project_info,
+                                                    project_datest,
+                                                    project_dateend,
+                                                    project_budget)
+
+                yes_options = False
+                for item in optional_inputs:
+                    if item != "":
+                        yes_options = True
+
+                if yes_options is False:
                     try:
                         self.dbCursor.execute(query)
                         SuccessMessageWindow("Insert success!")
@@ -377,14 +460,47 @@ class Database:
                         ErrorMessageWindow(err)
                     finally:
                         self.dbConnection.commit()
-            else:
-                ErrorMessageWindow("Date format not valid!")
-        else:
-            ErrorMessageWindow("Region input not valid!")
+                else:
+                    option_names = ["proj_actdatest",
+                                    "proj_actdateend",
+                                    "proj_actcost"]
+                    options_index = []
+                    filled_options = []
 
-    # TODO
-    def create_new_project(self):
-        pass
+                    index = 0
+                    for item in optional_inputs:
+                        if item != "":
+                            options_index.append(index)
+                            filled_options.append(item)
+                        index += 1
+                    update_query = "update project set "
+
+                    j = 0
+                    for i in options_index:
+                        if j < len(filled_options) - 1:
+                            update_query += "{}='{}', ".format(
+                                option_names[i], filled_options[j]
+                            )
+                        else:
+                            update_query += "{}='{}' ".format(
+                                option_names[i], filled_options[j]
+                            )
+                        j += 1
+
+                    try:
+                        try:
+                            self.dbCursor.execute(query)
+                            SuccessMessageWindow("Insert success!")
+                        except mysql.connector.Error as err:
+                            ErrorMessageWindow(err)
+                        finally:
+                            self.dbConnection.commit()
+
+                        self.dbCursor.execute(update_query)
+                    except mysql.connector.Error as err:
+                        ErrorMessageWindow(err)
+                    finally:
+                        self.dbConnection.commit()
 
     # TODO
     def create_assignments(self):
@@ -407,11 +523,20 @@ class Database:
 
         type_options = ["int", "float", "Date", "Region"]
         if type_name == type_options[0]:
-            return type(var) is int
+            if int(var):
+                return True
+            else:
+                return False
         elif type_name == type_options[1]:
-            return type(var) is float
+            if float(var):
+                return True
+            else:
+                return False
         elif type_name == type_options[2]:
-            return type(var) is datetime.date
+            if datetime.date.fromisoformat(var):
+                return True
+            else:
+                return False
         elif type_name == type_options[3]:
             valid_regions = ["NW", "SW", "MN", "MS", "NE", "SE"]
             is_valid = False
@@ -659,13 +784,13 @@ class ProjectScheduleWindow:
                 customer_data = database.query_customer(cus_name=cus_name)
                 if customer_data:
                     project_entries[1] = customer_data[0][0]
-                    project_data = database.query_project(
-                        project_query_options=project_entries)
+                    project_data = self.multi_project(database.query_project(
+                        project_query_options=project_entries))
                 else:
                     ErrorMessageWindow("No customer with this name found.")
             else:
-                project_data = database.query_project(
-                    project_query_options=project_entries)
+                project_data = self.multi_project(database.query_project(
+                    project_query_options=project_entries))
 
             if project_data:
                 schedule_data = database.query_project_tasks(
@@ -750,6 +875,40 @@ class ProjectScheduleWindow:
                     p_s_view.insert('', 'end', values=item)
             else:
                 ErrorMessageWindow("No project found with given info.")
+
+    @staticmethod
+    def multi_project(project_data):
+        if len(project_data) <= 1:
+            return project_data
+        else:
+            selection_window = tkinter.Tk()
+            selection_window.wm_title("Selection Window")
+
+            tkinter.Label(selection_window, text="Multiple projects found. "
+                                                 "Please select the desired "
+                                                 "one to display.",
+                          width=50).pack()
+
+            # Project rows display table.
+            project_table = tkinter.ttk.Treeview(selection_window)
+            project_table.grid(pady=10, column=1, row=5)
+
+            project_table["show"] = "headings"
+            project_table["columns"] = (
+                "Project ID", "Customer ID", "Employee ID", "Contract Date",
+                "Project Info", "Estimated Start Date", "Estimated End Date",
+                "Estimated Budget", "Actual Start Date", "Actual End Date",
+                "Actual Cost"
+            )
+
+            # Table headings.
+            for heading in project_table["columns"]:
+                project_table.heading(heading, text=heading)
+                project_table.column(heading, width=200)
+
+            # Load data into table.
+            for item in project_data:
+                project_table.insert('', 'end', values=item)
 
     def quit(self):
         self.main_window.destroy()
@@ -1083,10 +1242,189 @@ class AssignmentWindow:
 class UpdateWindow:
 
     def __init__(self):
-        self.window = tkinter.Tk()
-        self.window.wm_title("Database Update Window")
+        self.database = Database()
+        self.cursor = self.database.dbCursor
 
-        self.window.mainloop()
+        self.skill_info = None
+        self.skill_rate = None
+        self.emp_region_name = None
+        self.emp_lname = None
+        self.emp_mi = None
+        self.emp_fname = None
+        self.emp_hire_date = None
+
+        self.main_window = tkinter.Tk()
+        self.main_window.wm_title("Database Update Window")
+
+        self.main_label = tkinter.Label(self.main_window,
+                                        text="Update Options",
+                                        width=50).grid(pady=10)
+
+        # Buttons for database update options.
+        self.add_skill_button = tkinter.Button(self.main_window,
+                                               text="Add Skill",
+                                               width=25,
+                                               command=self.add_skill_window)
+        self.add_skill_button.grid(pady=10, row=1)
+
+        self.add_employee_button = tkinter.Button(self.main_window,
+                                                  text="Add Employee",
+                                                  width=25,
+                                                  command=self.add_employee_window)
+        self.add_employee_button.grid(pady=10, row=2)
+
+        self.add_employee_button = tkinter.Button(self.main_window,
+                                                  text="Add Project",
+                                                  width=25,
+                                                  command=self.add_project_window)
+        self.add_employee_button.grid(pady=10, row=3)
+
+        # More buttons to come?
+
+        self.add_employee_button = tkinter.Button(self.main_window,
+                                                  text="Quit",
+                                                  width=25,
+                                                  command=self.main_window.destroy)
+        self.add_employee_button.grid(pady=10, row=20)
+
+        self.main_window.mainloop()
+
+    def __del__(self):
+        self.database.dbConnection.close()
+        self.cursor.close()
+
+    def add_skill_window(self):
+        skill_window = tkinter.Tk()
+        skill_window.wm_title("Add Skill Window")
+
+        tkinter.Label(skill_window, text="Enter Skill Information Below:").grid(
+            pady=5
+        )
+
+        tkinter.Label(skill_window, text="*Skill Description").grid(
+            pady=5, row=1
+        )
+        self.skill_info = tkinter.Entry(skill_window)
+        self.skill_info.grid(pady=5, row=1, column=1)
+
+        tkinter.Label(skill_window, text="*Skill Hour Rate").grid(
+            pady=5, row=2
+        )
+        self.skill_rate = tkinter.Entry(skill_window)
+        self.skill_rate.grid(pady=5, row=2, column=1)
+
+        submit_button = tkinter.Button(skill_window,
+                                       text="Submit",
+                                       command=self.skill_submit)
+        submit_button.grid(pady=5, row=20, column=1)
+
+        quit_button = tkinter.Button(skill_window,
+                                     text="Quit",
+                                     command=skill_window.destroy)
+        quit_button.grid(pady=5, row=20, column=2)
+
+        tkinter.Label(skill_window, text="*Required fields").grid(
+            pady=5, row=50, column=0
+        )
+
+        skill_window.mainloop()
+
+    def skill_submit(self):
+        fields = [self.skill_info.get(), self.skill_rate.get()]
+        all_filled = True
+
+        for item in fields:
+            if item == "":
+                all_filled = False
+
+        if all_filled is True:
+            self.database.insert_skill(self.skill_info.get(),
+                                       self.skill_rate.get())
+        else:
+            ErrorMessageWindow("All fields are required!")
+
+    def add_employee_window(self):
+        employee_window = tkinter.Tk()
+        employee_window.wm_title("Add Employee Window")
+
+        tkinter.Label(employee_window, text="Enter Employee "
+                                            "Information Below:").grid(
+            pady=5
+        )
+
+        tkinter.Label(employee_window, text="*Region Name: XX").grid(
+            pady=5, row=1
+        )
+        self.emp_region_name = tkinter.Entry(employee_window)
+        self.emp_region_name.grid(pady=5, column=1, row=1)
+
+        tkinter.Label(employee_window, text="*Last Name:").grid(
+            pady=5, row=2
+        )
+        self.emp_lname = tkinter.Entry(employee_window)
+        self.emp_lname.grid(pady=5, column=1, row=2)
+
+        tkinter.Label(employee_window, text="*First Name:").grid(
+            pady=5, row=3
+        )
+        self.emp_fname = tkinter.Entry(employee_window)
+        self.emp_fname.grid(pady=5, column=1, row=3)
+
+        tkinter.Label(employee_window, text="*Hire Date (xxxx-xx-xx):").grid(
+            pady=5, row=4
+        )
+        self.emp_hire_date = tkinter.Entry(employee_window)
+        self.emp_hire_date.grid(pady=5, column=1, row=4)
+
+        tkinter.Label(employee_window, text="Middle Initial").grid(
+            pady=5, row=5
+        )
+        self.emp_mi = tkinter.Entry(employee_window)
+        self.emp_mi.grid(pady=5, column=1, row=5)
+
+        submit_button = tkinter.Button(employee_window,
+                                       text="Submit",
+                                       command=self.employee_submit)
+        submit_button.grid(pady=5, row=20, column=1)
+
+        quit_button = tkinter.Button(employee_window,
+                                     text="Quit",
+                                     command=employee_window.destroy)
+        quit_button.grid(pady=5, row=20, column=2)
+
+        tkinter.Label(employee_window, text="*Required fields").grid(
+            pady=5, row=50, column=0
+        )
+
+    def employee_submit(self):
+        essential_fields = [self.emp_region_name.get(),
+                            self.emp_lname.get(),
+                            self.emp_fname.get(),
+                            self.emp_hire_date.get()]
+
+        all_filled = True
+
+        for item in essential_fields:
+            if item == "":
+                all_filled = False
+
+        if all_filled is True:
+            if self.emp_mi == "":
+                self.database.insert_employee(essential_fields[0],
+                                              essential_fields[1],
+                                              essential_fields[2],
+                                              essential_fields[3])
+            else:
+                self.database.insert_employee(essential_fields[0],
+                                              essential_fields[1],
+                                              essential_fields[2],
+                                              essential_fields[3],
+                                              self.emp_mi.get())
+        else:
+            ErrorMessageWindow("All starred fields are required!")
+
+    def add_project_window(self):
+        pass
 
 
 class SearchWindow:
