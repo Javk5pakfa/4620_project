@@ -1117,6 +1117,26 @@ class ErrorMessageWindow:
         ).pack()
 
 
+class SuccessMessageWindow:
+    """
+    This class represents a generic success message window that pops whenever
+    a user input results in success.
+    """
+
+    def __init__(self, message):
+        self.window = tkinter.Tk()
+        self.window.wm_title("SUCCESS")
+
+        self.success_msg = message
+        tkinter.Label(self.window, text=self.success_msg).pack(
+            pady=10, padx=10
+        )
+
+        tkinter.Button(
+            self.window, text="Quit", command=self.window.destroy
+        ).pack()
+
+
 class MultiRowScreen:
     """
     This class returns a screen displaying a multi-row fetchall result
