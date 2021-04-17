@@ -1,7 +1,7 @@
 # import sys
+import datetime
 import mysql.connector
 from mysql.connector import errorcode
-# from datetime import date, datetime, timedelta
 import tkinter
 import tkinter.ttk
 import tkinter.messagebox
@@ -316,13 +316,71 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    # TODO
-    def insert_skill(self):
-        pass
+    def insert_skill(self, skill_info, skill_rate):
+        """
+        This method inserts one entry into skill table.
 
-    # TODO
-    def insert_employee(self):
-        pass
+        :param skill_info: Information about this skill.
+        :param skill_rate: Hour rate of this skill.
+        :return: Success message if success || Error if insert error.
+        """
+
+        if self.check_input_type(skill_rate, "float"):
+            if skill_rate >= 0.0:
+                query = "insert into skill(skill_descrpt, skill_rate) " \
+                        "values ('{}', '{}')".format(skill_info, skill_rate)
+
+                try:
+                    self.dbCursor.execute(query)
+                    SuccessMessageWindow("Insert success!")
+                except mysql.connector.Error as err:
+                    ErrorMessageWindow(err)
+                finally:
+                    self.dbConnection.commit()
+            else:
+                ErrorMessageWindow("Skill rate must be non-negative!")
+        else:
+            ErrorMessageWindow("Skill rate must be a number!")
+
+    def insert_employee(self,
+                        region_name,
+                        last_name,
+                        first_name,
+                        hire_date,
+                        mi):
+        """
+        This method inserts a new employee given the information.
+
+        :param region_name: Self-explanatory.
+        :param last_name: Self-explanatory.
+        :param first_name: Self-explanatory.
+        :param hire_date: Self-explanatory.
+        :param mi: Middle initials.
+        :return: Success message if success || Error if insert error.
+        """
+
+        if self.check_input_type(region_name, "Region"):
+            if self.check_input_type(hire_date, "Date"):
+                if mi != "":
+                    query = "insert into employee(Region_ID, " \
+                            "Emp_Lname, Emp_Mi, Emp_Fname, Emp_Hiredate) " \
+                            "values ((select region_id from region where " \
+                            "region_name='{}'), '{}', '{}', '{}', '{}')"
+                    query.format(
+                        region_name, last_name, mi, first_name, hire_date
+                    )
+
+                    try:
+                        self.dbCursor.execute(query)
+                        SuccessMessageWindow("Insert success!")
+                    except mysql.connector.Error as err:
+                        ErrorMessageWindow(err)
+                    finally:
+                        self.dbConnection.commit()
+            else:
+                ErrorMessageWindow("Date format not valid!")
+        else:
+            ErrorMessageWindow("Region input not valid!")
 
     # TODO
     def create_new_project(self):
@@ -331,6 +389,38 @@ class Database:
     # TODO
     def create_assignments(self):
         pass
+
+    # TODO
+    def log_worktime(self):
+        pass
+
+    @staticmethod
+    def check_input_type(var, type_name):
+        """
+        This method checks whether if the variable var is the type that
+        type_name dictates. True if yes, false otherwise.
+
+        :param var: Value to check.
+        :param type_name: Target type.
+        :return: True || False.
+        """
+
+        type_options = ["int", "float", "Date", "Region"]
+        if type_name == type_options[0]:
+            return type(var) is int
+        elif type_name == type_options[1]:
+            return type(var) is float
+        elif type_name == type_options[2]:
+            return type(var) is datetime.date
+        elif type_name == type_options[3]:
+            valid_regions = ["NW", "SW", "MN", "MS", "NE", "SE"]
+            is_valid = False
+            for region in valid_regions:
+                if var == region:
+                    is_valid = True
+            return is_valid
+        else:
+            Exception("This type doesn't exist in the checker!")
 
 
 # -----------------------------------------------------------------------------
