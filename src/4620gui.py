@@ -42,15 +42,11 @@ class Database:
 
         query = "select * from {}"
         try:
-            self.dbCursor.execute(query, table_name)
+            self.dbCursor.execute(query.format(table_name))
         except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_NO_SUCH_TABLE:
-                print("Table doesn't exist.")
-            else:
-                ErrorMessageWindow(err)
-
-        result = self.dbCursor.fetchall()
-        return result
+            ErrorMessageWindow(err)
+        finally:
+            return self.dbCursor.fetchall()
 
     def query_employee(self, employee_inputs):
         """
