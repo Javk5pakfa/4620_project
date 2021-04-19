@@ -1446,7 +1446,132 @@ class UpdateWindow:
             ErrorMessageWindow("All starred fields are required!")
 
     def add_project_window(self):
-        pass
+        project_input_window = tkinter.Tk()
+        project_input_window.wm_title("Create a new Project")
+
+        main_label = tkinter.Label(project_input_window,
+                                   text="Enter project information below:")
+        main_label.grid(pady=5)
+
+        tkinter.Label(project_input_window, text="*Customer Name: ").grid(
+            pady=5, row=1
+        )
+        self.customer_name = tkinter.Entry(project_input_window)
+        self.customer_name.grid(pady=5, row=1, column=1)
+
+        tkinter.Label(project_input_window, text="*Contract Date "
+                                                 "(xxxx-xx-xx): ").grid(
+            pady=5, row=2
+        )
+        self.contract_date = tkinter.Entry(project_input_window)
+        self.contract_date.grid(pady=5, row=2, column=1)
+
+        tkinter.Label(project_input_window, text="*Project Description").grid(
+            pady=5, row=3
+        )
+        self.proj_info = tkinter.Entry(project_input_window)
+        self.proj_info.grid(pady=5, row=3, column=1)
+
+        tkinter.Label(project_input_window, text="*Estimated Start "
+                                                 "(xxxx-xx-xx):").grid(
+            pady=5, row=4
+        )
+        self.proj_estdatest = tkinter.Entry(project_input_window)
+        self.proj_estdatest.grid(pady=5, row=4, column=1)
+
+        tkinter.Label(project_input_window, text="*Estimated End "
+                                                 "(xxxx-xx-xx):").grid(
+            pady=5, row=5
+        )
+        self.proj_estdatend = tkinter.Entry(project_input_window)
+        self.proj_estdatend.grid(pady=5, row=5, column=1)
+
+        tkinter.Label(project_input_window, text="*Estimated Budget ($):").grid(
+            pady=5, row=6
+        )
+        self.proj_budget = tkinter.Entry(project_input_window)
+        self.proj_budget.grid(pady=5, row=6, column=1)
+
+        tkinter.Label(project_input_window, text="Actual Start Date "
+                                                 "(xxxx-xx-xx):").grid(
+            pady=5, row=7
+        )
+        self.proj_actdatest = tkinter.Entry(project_input_window)
+        self.proj_actdatest.grid(pady=5, row=7, column=1)
+
+        tkinter.Label(project_input_window, text="Actual End Date "
+                                                 "(xxxx-xx-xx):").grid(
+            pady=5, row=8
+        )
+        self.proj_actdateend = tkinter.Entry(project_input_window)
+        self.proj_actdateend.grid(pady=5, row=8, column=1)
+
+        tkinter.Label(project_input_window, text="Actual Cost:").grid(
+            pady=5, row=9
+        )
+        self.proj_actcost = tkinter.Entry(project_input_window)
+        self.proj_actcost.grid(pady=5, row=9, column=1)
+
+        submit_button = tkinter.Button(project_input_window,
+                                       text="Submit",
+                                       command=self.project_submit)
+        submit_button.grid(pady=5, row=20, column=1)
+
+        quit_button = tkinter.Button(project_input_window,
+                                     text="Quit",
+                                     command=project_input_window.destroy)
+        quit_button.grid(pady=5, row=20, column=2)
+
+        tkinter.Label(project_input_window, text="*Required fields").grid(
+            pady=5, row=50, column=0
+        )
+
+        project_input_window.mainloop()
+
+    def project_submit(self):
+        database = Database()
+
+        required_fields = [self.customer_name.get(),
+                           self.contract_date.get(),
+                           self.proj_info.get(),
+                           self.proj_estdatest.get(),
+                           self.proj_estdatend.get(),
+                           self.proj_budget.get()]
+
+        optional_fields = [self.proj_actdatest.get(),
+                           self.proj_actdateend.get(),
+                           self.proj_actcost.get()]
+
+        requirement_not_filled = False
+        for item in required_fields:
+            if item == "":
+                requirement_not_filled = True
+
+        if requirement_not_filled is True:
+            ErrorMessageWindow("All starred fields are required!")
+        else:
+            yes_optional = False
+            for item in optional_fields:
+                if item != "":
+                    yes_optional = True
+
+            if yes_optional is False:
+                database.create_new_project(customer_name=self.customer_name.get(),
+                                            contract_date=self.contract_date.get(),
+                                            project_info=self.proj_info.get(),
+                                            project_datest=self.proj_estdatest.get(),
+                                            project_dateend=self.proj_estdatend.get(),
+                                            project_budget=self.proj_budget.get())
+            else:
+                database.create_new_project(customer_name=self.customer_name.get(),
+                                            contract_date=self.contract_date.get(),
+                                            project_info=self.proj_info.get(),
+                                            project_datest=self.proj_estdatest.get(),
+                                            project_dateend=self.proj_estdatend.get(),
+                                            project_budget=self.proj_budget.get(),
+                                            project_actst=self.proj_actdatest.get(),
+                                            project_actend=self.proj_actdateend.get(),
+                                            project_cost=self.proj_actcost.get())
 
 
 class SearchWindow:
