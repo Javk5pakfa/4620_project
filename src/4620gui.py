@@ -299,21 +299,31 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    def query_region(self, region_name):
+    def query_region(self, region_name=None, region_id=None):
         """
         This method returns region table with region id provided.
 
+        :param region_id: Region ID to query.
         :param region_name: Region name to query.
         :return: A list of tuples containing region info.
         """
 
-        query = "select * from region where region_name='{}'".format(region_name)
-
-        try:
-            self.dbCursor.execute(query)
-            return self.dbCursor.fetchall()
-        except mysql.connector.Error as err:
-            ErrorMessageWindow(err)
+        if region_name is not None and region_id is None:
+            query = "select * from region where region_name='{}'".format(
+                region_name)
+            try:
+                self.dbCursor.execute(query)
+                return self.dbCursor.fetchall()
+            except mysql.connector.Error as err:
+                ErrorMessageWindow(err)
+        elif region_name is None and region_id is not None:
+            query = "select * from region where region_id='{}'".format(
+                region_id)
+            try:
+                self.dbCursor.execute(query)
+                return self.dbCursor.fetchall()
+            except mysql.connector.Error as err:
+                ErrorMessageWindow(err)
 
     def insert_skill(self, skill_info, skill_rate):
         """
