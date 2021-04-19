@@ -370,22 +370,19 @@ class Database:
                 region_info = self.query_region(region_name)
                 region_id = region_info[0][0]
 
-                print(region_info)
-                print(region_id)
-
                 if mi != "":
                     query_format = "insert into employee(Region_ID, " \
-                            "Emp_Lname, Emp_Mi, Emp_Fname, Emp_Hiredate) " \
-                            "values ((select region_id from region where " \
-                            "region_id='{}'), '{}', '{}', '{}', '{}')"
+                                   "Emp_Lname, Emp_Mi, Emp_Fname, Emp_Hiredate) " \
+                                   "values ((select region_id from region where " \
+                                   "region_id='{}'), '{}', '{}', '{}', '{}')"
                     query = query_format.format(
                         region_id, last_name, mi, first_name, hire_date
                     )
                 else:
                     query_format = "insert into employee(Region_ID, " \
-                            "Emp_Lname, Emp_Fname, Emp_Hiredate) " \
-                            "values ((select region_id from region where " \
-                            "region_id='{}'), '{}', '{}', '{}')"
+                                   "Emp_Lname, Emp_Fname, Emp_Hiredate) " \
+                                   "values ((select region_id from region where " \
+                                   "region_id='{}'), '{}', '{}', '{}')"
                     query = query_format.format(
                         region_id, last_name, first_name, hire_date
                     )
@@ -430,83 +427,104 @@ class Database:
         """
 
         customer_info = self.query_customer(cus_name=customer_name)
-        employee_inputs = [None, None,
-                           employee_name[0], None, employee_name[1], None]
-        employee_info = self.query_employee(employee_inputs)
 
-        if customer_info and employee_info:
-            if len(customer_info) > 1:
-                MultiRowScreen(customer_info, "project")
-            else:
-                cus_id = customer_info[0][0]
-                emp_id = employee_info[0][0]
-                optional_inputs = [project_actst, project_actend, project_cost]
-
-                query = "insert into project(cus_id, emp_id, proj_date, " \
-                        "proj_descrpt, proj_estdatest, proj_estdateend, " \
-                        "proj_estbudget) values ('{}', '{}', '{}', '{}', " \
-                        "'{}', '{}', '{}') ".format(cus_id,
-                                                    emp_id,
-                                                    contract_date,
-                                                    project_info,
-                                                    project_datest,
-                                                    project_dateend,
-                                                    project_budget)
-
-                yes_options = False
-                for item in optional_inputs:
-                    if item != "":
-                        yes_options = True
-
-                if yes_options is False:
-                    try:
-                        self.dbCursor.execute(query)
-                        SuccessMessageWindow("Insert success!")
-                    except mysql.connector.Error as err:
-                        ErrorMessageWindow(err)
-                    finally:
-                        self.dbConnection.commit()
+        if customer_info:
+            # Search for project manager in the same region as the customer.
+            customer_region_id = customer_info[0][1]
+            get_employee_query = "select employee.emp_id, emp_lname, emp_fname from employee, " \
+                                 "empskill, skill, region where employee.emp_id = " \
+                                 "empskill.emp_id and empskill.skill_id = " \
+                                 "skill.skill_id and skill.skill_descrpt = " \
+                                 "'Project Manager' and region.region_id = " \
+                                 "employee.region_id and region.region_id = '{}' "
+            try:
+                self.dbCursor.execute(get_employee_query.format(customer_region_id))
+                employee_info = self.dbCursor.fetchall()
+            except mysql.connector.Error as err:
+                ErrorMessageWindow(err)
+            finally:
+                if len(employee_info) == 0:
+                    ErrorMessageWindow("No suitable project manager found!")
                 else:
-                    option_names = ["proj_actdatest",
-                                    "proj_actdateend",
-                                    "proj_actcost"]
-                    options_index = []
-                    filled_options = []
-
-                    index = 0
-                    for item in optional_inputs:
-                        if item != "":
-                            options_index.append(index)
-                            filled_options.append(item)
-                        index += 1
-                    update_query = "update project set "
-
-                    j = 0
-                    for i in options_index:
-                        if j < len(filled_options) - 1:
-                            update_query += "{}='{}', ".format(
-                                option_names[i], filled_options[j]
-                            )
+                    if customer_info and employee_info:
+                        if len(customer_info) > 1:
+                            MultiRowScreen(customer_info, "project")
                         else:
-                            update_query += "{}='{}' ".format(
-                                option_names[i], filled_options[j]
-                            )
-                        j += 1
+                            cus_id = customer_info[0][0]
+                            emp_id = employee_info[0][0]
+                            optional_inputs = [project_actst, project_actend,
+                                               project_cost]
 
-                    try:
-                        try:
-                            self.dbCursor.execute(query)
-                            SuccessMessageWindow("Insert success!")
-                        except mysql.connector.Error as err:
-                            ErrorMessageWindow(err)
-                        finally:
-                            self.dbConnection.commit()
+                            customer_subquery = ""
+                            employee_subquery = ""
 
-                        self.dbCursor.execute(update_query)
-                    except mysql.connector.Error as err:
-                        ErrorMessageWindow(err)
-                    finally:
-                        self.dbConnection.commit()
+                            query = "insert into project(cus_id, emp_id, proj_date, " \
+                                    "proj_descrpt, proj_estdatest, proj_estdateend, " \
+                                    "proj_estbudget) values ('{}', '{}', '{}', '{}', " \
+                                    "'{}', '{}', '{}') ".format(cus_id,
+                                                                emp_id,
+                                                                contract_date,
+                                                                project_info,
+                                                                project_datest,
+                                                                project_dateend,
+                                                                project_budget)
+
+                            yes_options = False
+                            for item in optional_inputs:
+                                if item != "":
+                                    yes_options = True
+
+                            if yes_options is False:
+                                try:
+                                    self.dbCursor.execute(query)
+                                    SuccessMessageWindow("Insert success!")
+                                except mysql.connector.Error as err:
+                                    ErrorMessageWindow(err)
+                                finally:
+                                    self.dbConnection.commit()
+                            else:
+                                option_names = ["proj_actdatest",
+                                                "proj_actdateend",
+                                                "proj_actcost"]
+                                options_index = []
+                                filled_options = []
+
+                                index = 0
+                                for item in optional_inputs:
+                                    if item != "":
+                                        options_index.append(index)
+                                        filled_options.append(item)
+                                    index += 1
+                                update_query = "update project set "
+
+                                j = 0
+                                for i in options_index:
+                                    if j < len(filled_options) - 1:
+                                        update_query += "{}='{}', ".format(
+                                            option_names[i], filled_options[j]
+                                        )
+                                    else:
+                                        update_query += "{}='{}' ".format(
+                                            option_names[i], filled_options[j]
+                                        )
+                                    j += 1
+
+                                try:
+                                    try:
+                                        self.dbCursor.execute(query)
+                                        SuccessMessageWindow("Insert success!")
+                                    except mysql.connector.Error as err:
+                                        ErrorMessageWindow(err)
+                                    finally:
+                                        self.dbConnection.commit()
+
+                                    self.dbCursor.execute(update_query)
+                                except mysql.connector.Error as err:
+                                    ErrorMessageWindow(err)
+                                finally:
+                                    self.dbConnection.commit()
+        else:
+            ErrorMessageWindow("Customer not found!")
 
     # TODO
     def create_assignments(self):
