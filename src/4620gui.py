@@ -401,7 +401,6 @@ class Database:
 
     def create_new_project(self,
                            customer_name,
-                           employee_name,
                            contract_date,
                            project_info,
                            project_datest,
@@ -414,7 +413,6 @@ class Database:
         This method creates a new project with given information.
 
         :param customer_name: Self-explanatory.
-        :param employee_name: (Last Name, First Name)
         :param contract_date: Self-explanatory.
         :param project_info: Self-explanatory.
         :param project_datest: Self-explanatory.
@@ -820,7 +818,10 @@ class ProjectScheduleWindow:
                 schedule_data = database.query_project_tasks(
                     project_data=project_data)
                 customer_data = database.query_customer(project_data[0][1])
-                region_data = database.query_region_id(customer_data[0][1])
+
+                # TODO: Rework query region to include both id and name feats.
+                region_data = database.query_region(
+                    region_id=customer_data[0][1])
 
                 # Project schedule window definition.
                 ps_window = tkinter.Tk()
@@ -1266,9 +1267,6 @@ class AssignmentWindow:
 class UpdateWindow:
 
     def __init__(self):
-        self.database = Database()
-        self.cursor = self.database.dbCursor
-
         self.skill_info = None
         self.skill_rate = None
         self.emp_region_name = None
@@ -1313,10 +1311,6 @@ class UpdateWindow:
 
         self.main_window.mainloop()
 
-    def __del__(self):
-        self.database.dbConnection.close()
-        self.cursor.close()
-
     def add_skill_window(self):
         skill_window = tkinter.Tk()
         skill_window.wm_title("Add Skill Window")
@@ -1354,6 +1348,9 @@ class UpdateWindow:
         skill_window.mainloop()
 
     def skill_submit(self):
+        database = Database()
+        cursor = database.dbCursor
+
         fields = [self.skill_info.get(), self.skill_rate.get()]
         all_filled = True
 
@@ -1362,8 +1359,8 @@ class UpdateWindow:
                 all_filled = False
 
         if all_filled is True:
-            self.database.insert_skill(self.skill_info.get(),
-                                       self.skill_rate.get())
+            database.insert_skill(self.skill_info.get(),
+                                  self.skill_rate.get())
         else:
             ErrorMessageWindow("All fields are required!")
 
@@ -1421,6 +1418,7 @@ class UpdateWindow:
         )
 
     def employee_submit(self):
+        database = Database()
         essential_fields = [self.emp_region_name.get(),
                             self.emp_lname.get(),
                             self.emp_fname.get(),
@@ -1434,16 +1432,16 @@ class UpdateWindow:
 
         if all_filled is True:
             if self.emp_mi == "":
-                self.database.insert_employee(essential_fields[0],
-                                              essential_fields[1],
-                                              essential_fields[2],
-                                              essential_fields[3])
+                database.insert_employee(essential_fields[0],
+                                         essential_fields[1],
+                                         essential_fields[2],
+                                         essential_fields[3])
             else:
-                self.database.insert_employee(essential_fields[0],
-                                              essential_fields[1],
-                                              essential_fields[2],
-                                              essential_fields[3],
-                                              self.emp_mi.get())
+                database.insert_employee(essential_fields[0],
+                                         essential_fields[1],
+                                         essential_fields[2],
+                                         essential_fields[3],
+                                         self.emp_mi.get())
         else:
             ErrorMessageWindow("All starred fields are required!")
 
