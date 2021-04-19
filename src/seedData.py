@@ -609,7 +609,7 @@ def begin_seeding():
     return username, password, hostname, database_name
 
 
-if __name__ == '__main__':
+def begin_process():
     username_input, passwd_input, hostname_input, db_name_input = begin_seeding()
 
     database_connection(hostname_input, username_input,

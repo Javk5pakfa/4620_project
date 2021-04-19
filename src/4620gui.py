@@ -4,6 +4,7 @@ from mysql.connector import errorcode
 import tkinter
 import tkinter.ttk
 import tkinter.messagebox
+import seedData
 
 
 class Database:
@@ -12,6 +13,11 @@ class Database:
     """
 
     def __init__(self):
+        """
+        Database class constructor. Creates a connection to database with
+        information provided in the connection instantiation statement.
+        """
+
         try:
             self.dbConnection = mysql.connector.connect(
                 host="jack-test-db.cq0gc7w0rwke.us-east-1.rds.amazonaws.com",
@@ -28,6 +34,12 @@ class Database:
         self.dbCursor = self.dbConnection.cursor()
 
     def __del__(self):
+        """
+        Destructor for Database class.
+
+        :return: Closes connections to database.
+        """
+
         self.dbCursor.close()
         self.dbConnection.close()
 
@@ -436,7 +448,8 @@ class Database:
                                  "'Project Manager' and region.region_id = " \
                                  "employee.region_id and region.region_id = '{}' "
             try:
-                self.dbCursor.execute(get_employee_query.format(customer_region_id))
+                self.dbCursor.execute(
+                    get_employee_query.format(customer_region_id))
                 employee_info = self.dbCursor.fetchall()
             except mysql.connector.Error as err:
                 ErrorMessageWindow(err)
@@ -1553,22 +1566,24 @@ class UpdateWindow:
                     yes_optional = True
 
             if yes_optional is False:
-                database.create_new_project(customer_name=self.customer_name.get(),
-                                            contract_date=self.contract_date.get(),
-                                            project_info=self.proj_info.get(),
-                                            project_datest=self.proj_estdatest.get(),
-                                            project_dateend=self.proj_estdatend.get(),
-                                            project_budget=self.proj_budget.get())
+                database.create_new_project(
+                    customer_name=self.customer_name.get(),
+                    contract_date=self.contract_date.get(),
+                    project_info=self.proj_info.get(),
+                    project_datest=self.proj_estdatest.get(),
+                    project_dateend=self.proj_estdatend.get(),
+                    project_budget=self.proj_budget.get())
             else:
-                database.create_new_project(customer_name=self.customer_name.get(),
-                                            contract_date=self.contract_date.get(),
-                                            project_info=self.proj_info.get(),
-                                            project_datest=self.proj_estdatest.get(),
-                                            project_dateend=self.proj_estdatend.get(),
-                                            project_budget=self.proj_budget.get(),
-                                            project_actst=self.proj_actdatest.get(),
-                                            project_actend=self.proj_actdateend.get(),
-                                            project_cost=self.proj_actcost.get())
+                database.create_new_project(
+                    customer_name=self.customer_name.get(),
+                    contract_date=self.contract_date.get(),
+                    project_info=self.proj_info.get(),
+                    project_datest=self.proj_estdatest.get(),
+                    project_dateend=self.proj_estdatend.get(),
+                    project_budget=self.proj_budget.get(),
+                    project_actst=self.proj_actdatest.get(),
+                    project_actend=self.proj_actdateend.get(),
+                    project_cost=self.proj_actcost.get())
 
 
 class SearchWindow:
@@ -1697,6 +1712,9 @@ class HomePage:
         self.homePageWindow.mainloop()
 
 
-mainPage = HomePage()
-# mainPage.database.dbCursor.close()
-# mainPage.database.dbConnection.close()
+if __name__ == "__main__":
+    try:
+        seedData.begin_process()
+        mainPage = HomePage()
+    except mysql.connector.Error as err:
+        ErrorMessageWindow(err)
