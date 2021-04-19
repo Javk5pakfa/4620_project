@@ -453,9 +453,6 @@ class Database:
                             optional_inputs = [project_actst, project_actend,
                                                project_cost]
 
-                            customer_subquery = ""
-                            employee_subquery = ""
-
                             query = "insert into project(cus_id, emp_id, proj_date, " \
                                     "proj_descrpt, proj_estdatest, proj_estdateend, " \
                                     "proj_estbudget) values ('{}', '{}', '{}', '{}', " \
