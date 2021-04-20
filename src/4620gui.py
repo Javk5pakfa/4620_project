@@ -243,7 +243,6 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    # TODO: Expand this method to incorporate employee search.
     def query_worklog(self, emp_id=None):
         """
         This method returns the work-log table.
@@ -260,7 +259,6 @@ class Database:
         except mysql.connector.Error as err:
             ErrorMessageWindow(err)
 
-    # TODO: Probably needs rework/expansion.
     def query_customer(self,
                        cus_id=None,
                        cus_name=None,
@@ -534,11 +532,9 @@ class Database:
         else:
             ErrorMessageWindow("Customer not found!")
 
-    # TODO
     def create_assignments(self):
         pass
 
-    # TODO
     def log_worktime(self):
         pass
 
@@ -829,7 +825,6 @@ class ProjectScheduleWindow:
                     project_data=project_data)
                 customer_data = database.query_customer(project_data[0][1])
 
-                # TODO: Rework query region to include both id and name feats.
                 region_data = database.query_region(
                     region_id=customer_data[0][1])
 
